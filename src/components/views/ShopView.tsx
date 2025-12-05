@@ -38,7 +38,9 @@ function createDeviceFromHardware(item: HardwareItem, position: { x: number; y: 
         speed: 1000,
       });
     }
-  } else if (item.type === 'switch') {
+  } else if (item.type === 'switch' || item.type === 'hub') {
+    // Both switches and hubs have simple port interfaces
+    // Hubs are Layer 1 (no MAC learning), switches are Layer 2/3
     const ports = (item.specs.ports as number) || 4;
     for (let i = 0; i < ports; i++) {
       baseInterfaces.push({
@@ -46,7 +48,7 @@ function createDeviceFromHardware(item: HardwareItem, position: { x: number; y: 
         name: `port${i}`,
         macAddress: generateMAC(),
         isUp: false,
-        speed: (item.specs.speed as number) || 1000,
+        speed: (item.specs.speed as number) || 100,
       });
     }
   }
@@ -86,11 +88,13 @@ function createDeviceFromHardware(item: HardwareItem, position: { x: number; y: 
       routes: [],
     };
   } else if (item.type === 'switch') {
+    // Switches have MAC tables for Layer 2 forwarding
     (baseDevice as NetworkDevice & { config: SwitchConfig }).config = {
       ...baseDevice.config,
       macTable: [],
     };
   }
+  // Hubs don't need special config - they're "dumb" devices that just broadcast
 
   return baseDevice;
 }
@@ -163,12 +167,37 @@ export const ShopView: React.FC = () => {
           </div>
         </section>
 
+        {/* Hubs Section */}
+        <section className="mb-8">
+          <h2 className="text-lg font-semibold text-gray-300 mb-4 flex items-center gap-2">
+            <Cpu className="w-5 h-5" />
+            Hubs (Layer 1)
+          </h2>
+          <p className="text-sm text-gray-500 mb-3">
+            Simple devices that broadcast all traffic to all ports. Cheap but inefficient.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {HARDWARE_CATALOG.hubs.map((item) => (
+              <HardwareCard
+                key={item.id}
+                item={item}
+                canAfford={canAfford(item.cost)}
+                locked={isLocked(item) ?? false}
+                onPurchase={() => handlePurchase(item)}
+              />
+            ))}
+          </div>
+        </section>
+
         {/* Switches Section */}
         <section className="mb-8">
           <h2 className="text-lg font-semibold text-gray-300 mb-4 flex items-center gap-2">
             <Cpu className="w-5 h-5" />
-            Switches
+            Switches (Layer 2/3)
           </h2>
+          <p className="text-sm text-gray-500 mb-3">
+            Intelligent devices that learn MAC addresses and route traffic efficiently.
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {HARDWARE_CATALOG.switches.map((item) => (
               <HardwareCard
@@ -220,8 +249,9 @@ export const ShopView: React.FC = () => {
           <h3 className="font-semibold text-blue-300 mb-2">💡 Tips</h3>
           <ul className="text-sm text-gray-300 space-y-1">
             <li>• Purchase a router first to connect your network to the internet</li>
-            <li>• Use switches to connect multiple devices when you run out of router ports</li>
-            <li>• Devices appear on the Network view after purchase</li>
+            <li>• Hubs are cheap but broadcast all traffic - good for learning basics</li>
+            <li>• Switches are smarter and more efficient - unlock them by completing missions</li>
+            <li>• Devices appear on the Network tab after purchase</li>
           </ul>
         </div>
       </div>

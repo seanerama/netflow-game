@@ -40,6 +40,7 @@ const initialNetworkState: NetworkState = {
     devicesByType: {
       router: [],
       switch: [],
+      hub: [],
       computer: [],
       server: [],
       firewall: [],

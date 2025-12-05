@@ -2,7 +2,7 @@
 // CORE TYPES - Network Infrastructure
 // ============================================================
 
-export type DeviceType = 'router' | 'switch' | 'computer' | 'server' | 'firewall';
+export type DeviceType = 'router' | 'switch' | 'hub' | 'computer' | 'server' | 'firewall';
 export type ConnectionType = 'ethernet' | 'fiber' | 'wireless';
 export type PacketType = 'tcp' | 'udp' | 'icmp' | 'dns' | 'http' | 'https';
 export type PacketState = 'created' | 'in-transit' | 'delivered' | 'dropped' | 'blocked';
@@ -754,6 +754,7 @@ export const VISUAL_METAPHORS = {
   deviceIcons: {
     router: '🔀',
     switch: '⚡',
+    hub: '🔌',
     computer: '🖥️',
     server: '🗄️',
     firewall: '🛡️',

@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { GameLayout } from './components/layout/GameLayout';
 import { NetworkView } from './components/views/NetworkView';
 import { ShopView } from './components/views/ShopView';
+import { LandingPage } from './components/views/LandingPage';
 import { DeviceConfigModal } from './components/config/DeviceConfigModal';
 import { ToastContainer } from './components/ui/Toast';
 import { useGameStore, useUIState, useToasts } from './store/gameStore';
@@ -13,13 +14,28 @@ function App() {
   const toasts = useToasts();
   const { closeModal, network, dismissToast } = useGameStore();
 
+  // Track if user has started the game (persisted in localStorage)
+  const [hasStarted, setHasStarted] = useState(() => {
+    return localStorage.getItem('netflow-game-started') === 'true';
+  });
+
+  const handleStartGame = () => {
+    localStorage.setItem('netflow-game-started', 'true');
+    setHasStarted(true);
+  };
+
   // Initialize game state on first load
   useEffect(() => {
-    // Only initialize if network is empty
-    if (Object.keys(network.devices).length === 0) {
+    // Only initialize if network is empty and game has started
+    if (hasStarted && Object.keys(network.devices).length === 0) {
       initializeGameState();
     }
-  }, []);
+  }, [hasStarted]);
+
+  // Show landing page if game hasn't started
+  if (!hasStarted) {
+    return <LandingPage onStartGame={handleStartGame} />;
+  }
 
   const renderView = () => {
     switch (ui.currentView) {
