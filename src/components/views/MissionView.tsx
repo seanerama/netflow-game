@@ -14,7 +14,8 @@ import {
   X,
 } from 'lucide-react';
 import { useGameStore } from '../../store/gameStore';
-import { MISSION_1_1, getNextHint } from '../../data/missions/mission1-1';
+import { ALL_MISSIONS, getNextHintForMission } from '../../data/missions';
+import { onMissionStart, onMissionComplete } from '../../data/missions/missionEvents';
 import type { Mission, Objective, Hint, Reward } from '../../types';
 import ReactMarkdown from 'react-markdown';
 
@@ -251,11 +252,13 @@ export const MissionView: React.FC = () => {
   const [showHint, setShowHint] = useState<Hint | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'detail'>('list');
 
-  // Load mission 1-1 if not already loaded
+  // Load all missions if not already loaded
   useEffect(() => {
-    if (!missions['mission-1-1']) {
-      loadMission(MISSION_1_1);
-    }
+    Object.values(ALL_MISSIONS).forEach((mission) => {
+      if (!missions[mission.id]) {
+        loadMission(mission);
+      }
+    });
   }, [missions, loadMission]);
 
   // Get the active mission
@@ -265,11 +268,16 @@ export const MissionView: React.FC = () => {
   const completedObjectiveIds = activeMission
     ? activeMission.objectives.filter((o) => o.completed).map((o) => o.id)
     : [];
-  const currentHint = activeMission ? getNextHint(completedObjectiveIds) : null;
+  const currentHint = activeMission
+    ? getNextHintForMission(activeMission.id, completedObjectiveIds)
+    : null;
 
   // Handle mission start
   const handleStartMission = (missionId: string) => {
     startMission(missionId);
+    // Trigger mission start events (spawn devices, etc.)
+    onMissionStart(missionId);
+
     const mission = missions[missionId];
     if (mission) {
       setSelectedMission(mission);
@@ -291,6 +299,8 @@ export const MissionView: React.FC = () => {
   // Handle mission completion
   const handleCompleteMission = () => {
     if (activeMission && allObjectivesComplete) {
+      // Trigger mission completion events (grant rewards, etc.)
+      onMissionComplete(activeMission.id);
       completeMission(activeMission.id);
       setViewMode('list');
       setSelectedMission(null);

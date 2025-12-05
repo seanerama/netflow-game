@@ -198,6 +198,49 @@ export function useMissionProgress() {
           shouldComplete = newCurrent >= objective.required;
           break;
         }
+
+        // === MISSION 1-2 OBJECTIVES ===
+
+        // Connect Alex's PC to network
+        case 'obj-connect-alex': {
+          const alexPC = devices['computer-alex'];
+          if (alexPC) {
+            const isConnected = isConnectedTo(alexPC, 'hub') || isConnectedTo(alexPC, 'switch');
+            newCurrent = isConnected ? 1 : 0;
+          }
+          shouldComplete = newCurrent >= objective.required;
+          break;
+        }
+
+        // Configure Alex's IP
+        case 'obj-configure-alex-ip': {
+          const alexPC = devices['computer-alex'];
+          if (alexPC) {
+            newCurrent = hasIP(alexPC) ? 1 : 0;
+          }
+          shouldComplete = newCurrent >= objective.required;
+          break;
+        }
+
+        // Configure Alex's gateway
+        case 'obj-configure-alex-gateway': {
+          const alexPC = devices['computer-alex'];
+          if (alexPC) {
+            newCurrent = hasGateway(alexPC) ? 1 : 0;
+          }
+          shouldComplete = newCurrent >= objective.required;
+          break;
+        }
+
+        // Alex can reach internet
+        case 'obj-alex-online': {
+          const alexPC = devices['computer-alex'];
+          if (alexPC) {
+            newCurrent = canReachInternet(alexPC) ? 1 : 0;
+          }
+          shouldComplete = newCurrent >= objective.required;
+          break;
+        }
       }
 
       // Update objective if progress changed
