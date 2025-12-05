@@ -1,8 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore, useDevices, useConnections, useUIState } from '../../store/gameStore';
 import { VISUAL_METAPHORS } from '../../types';
 import type { Position, NetworkDevice } from '../../types';
+import { PacketVisualization } from '../network/PacketVisualization';
+import { startPacketSimulation, stopPacketSimulation } from '../../simulation/packetEngine';
 
 // Device tooltip content based on device type and state
 const getDeviceTooltip = (device: NetworkDevice, connectingFrom: string | null) => {
@@ -47,6 +49,14 @@ export const NetworkView: React.FC = () => {
 
   const deviceList = Object.values(devices);
   const connectionList = Object.values(connections);
+
+  // Start/stop packet simulation when component mounts/unmounts
+  useEffect(() => {
+    startPacketSimulation();
+    return () => {
+      stopPacketSimulation();
+    };
+  }, []);
 
   // Handle mouse move for connection line preview
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -253,6 +263,9 @@ export const NetworkView: React.FC = () => {
           );
         })}
       </svg>
+
+      {/* Packet visualization layer */}
+      {ui.showDataFlow && <PacketVisualization />}
 
       {/* Device layer */}
       {deviceList.map((device) => {
