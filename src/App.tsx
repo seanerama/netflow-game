@@ -2,17 +2,22 @@ import { useEffect, useState } from 'react';
 import { GameLayout } from './components/layout/GameLayout';
 import { NetworkView } from './components/views/NetworkView';
 import { ShopView } from './components/views/ShopView';
+import { MissionView } from './components/views/MissionView';
 import { LandingPage } from './components/views/LandingPage';
 import { DeviceConfigModal } from './components/config/DeviceConfigModal';
 import { ToastContainer } from './components/ui/Toast';
 import { useGameStore, useUIState, useToasts } from './store/gameStore';
 import { initializeGameState } from './data/initialState';
+import { useMissionProgress } from './hooks/useMissionProgress';
 import './index.css';
 
 function App() {
   const ui = useUIState();
   const toasts = useToasts();
   const { closeModal, network, dismissToast } = useGameStore();
+
+  // Track mission progress automatically
+  useMissionProgress();
 
   // Track if user has started the game (persisted in localStorage)
   const [hasStarted, setHasStarted] = useState(() => {
@@ -53,14 +58,7 @@ function App() {
           </div>
         );
       case 'missions':
-        return (
-          <div className="flex items-center justify-center h-full text-gray-500">
-            <div className="text-center">
-              <p className="text-lg">Missions View</p>
-              <p className="text-sm">Coming Soon - Track objectives and learn networking</p>
-            </div>
-          </div>
-        );
+        return <MissionView />;
       case 'config':
         return (
           <div className="flex items-center justify-center h-full text-gray-500">
