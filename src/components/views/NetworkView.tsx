@@ -1,8 +1,30 @@
 import React, { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore, useDevices, useConnections, useUIState } from '../../store/gameStore';
 import { VISUAL_METAPHORS } from '../../types';
-import type { Position } from '../../types';
+import type { Position, NetworkDevice } from '../../types';
+
+// Device tooltip content based on device type and state
+const getDeviceTooltip = (device: NetworkDevice, connectingFrom: string | null) => {
+  const isConnectTarget = connectingFrom && connectingFrom !== device.id;
+
+  if (isConnectTarget) {
+    return 'Click to connect';
+  }
+
+  const availablePorts = device.interfaces.filter(i => !i.connectedTo).length;
+  const totalPorts = device.interfaces.length;
+
+  const lines = [
+    `${device.type.charAt(0).toUpperCase() + device.type.slice(1)} - ${device.status}`,
+    `Ports: ${availablePorts}/${totalPorts} available`,
+    '',
+    'Right-click: Connect',
+    'Double-click: Configure',
+  ];
+
+  return lines;
+};
 
 export const NetworkView: React.FC = () => {
   const devices = useDevices();
@@ -18,6 +40,10 @@ export const NetworkView: React.FC = () => {
   // Dragging state
   const [draggingDevice, setDraggingDevice] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
+
+  // Hover state for tooltips
+  const [hoveredDevice, setHoveredDevice] = useState<string | null>(null);
+  const [hoverTimeout, setHoverTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
 
   const deviceList = Object.values(devices);
   const connectionList = Object.values(connections);
@@ -96,6 +122,21 @@ export const NetworkView: React.FC = () => {
 
   const handleDragEnd = () => {
     setDraggingDevice(null);
+  };
+
+  // Handle hover for tooltips
+  const handleMouseEnter = (deviceId: string) => {
+    if (draggingDevice) return;
+    const timeout = setTimeout(() => setHoveredDevice(deviceId), 600);
+    setHoverTimeout(timeout);
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+      setHoverTimeout(null);
+    }
+    setHoveredDevice(null);
   };
 
   // Cancel connection mode
@@ -218,6 +259,8 @@ export const NetworkView: React.FC = () => {
         const isSelected = ui.selectedDevice === device.id;
         const isConnecting = connectingFrom === device.id;
         const icon = VISUAL_METAPHORS.deviceIcons[device.type] || '📦';
+        const isHovered = hoveredDevice === device.id;
+        const tooltip = getDeviceTooltip(device, connectingFrom);
 
         return (
           <motion.div
@@ -237,6 +280,8 @@ export const NetworkView: React.FC = () => {
             onContextMenu={(e) => handleDeviceRightClick(device.id, e)}
             onDoubleClick={(e) => handleDeviceDoubleClick(device.id, e)}
             onMouseDown={(e) => handleDragStart(device.id, e)}
+            onMouseEnter={() => handleMouseEnter(device.id)}
+            onMouseLeave={handleMouseLeave}
             whileHover={draggingDevice ? {} : { scale: 1.05 }}
             whileTap={draggingDevice ? {} : { scale: 0.95 }}
             animate={draggingDevice === device.id ? { scale: 1.1 } : {}}
@@ -280,6 +325,31 @@ export const NetworkView: React.FC = () => {
                 {device.interfaces[0].ipAddress.octets.join('.')}
               </div>
             )}
+
+            {/* Tooltip */}
+            <AnimatePresence>
+              {isHovered && !draggingDevice && (
+                <motion.div
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 5 }}
+                  className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-30 pointer-events-none"
+                >
+                  <div className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 shadow-xl text-xs whitespace-nowrap">
+                    {typeof tooltip === 'string' ? (
+                      <span className="text-blue-300 font-medium">{tooltip}</span>
+                    ) : (
+                      tooltip.map((line, i) => (
+                        <div key={i} className={line === '' ? 'h-1' : i >= 3 ? 'text-gray-500' : 'text-gray-300'}>
+                          {line}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-gray-900 border-b border-r border-gray-700 rotate-45" />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         );
       })}

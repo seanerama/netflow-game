@@ -3,13 +3,15 @@ import { GameLayout } from './components/layout/GameLayout';
 import { NetworkView } from './components/views/NetworkView';
 import { ShopView } from './components/views/ShopView';
 import { DeviceConfigModal } from './components/config/DeviceConfigModal';
-import { useGameStore, useUIState } from './store/gameStore';
+import { ToastContainer } from './components/ui/Toast';
+import { useGameStore, useUIState, useToasts } from './store/gameStore';
 import { initializeGameState } from './data/initialState';
 import './index.css';
 
 function App() {
   const ui = useUIState();
-  const { closeModal, network } = useGameStore();
+  const toasts = useToasts();
+  const { closeModal, network, dismissToast } = useGameStore();
 
   // Initialize game state on first load
   useEffect(() => {
@@ -67,6 +69,9 @@ function App() {
         onClose={closeModal}
         modalData={ui.modalData as { deviceId?: string; mode?: 'connect'; fromDevice?: string; toDevice?: string }}
       />
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </>
   );
 }

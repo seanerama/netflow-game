@@ -188,3 +188,4 @@ export const useCurrentMission = () => useGameStore((state) => state.currentMiss
 export const useUIState = () => useGameStore((state) => state.ui);
 export const useGameTime = () => useGameStore((state) => state.gameTime);
 export const useSimulation = () => useGameStore((state) => state.simulation);
+export const useToasts = () => useGameStore((state) => state.toasts);

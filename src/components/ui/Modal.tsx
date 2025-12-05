@@ -39,14 +39,19 @@ export const Modal: React.FC<ModalProps> = ({
 
           {/* Modal */}
           <motion.div
-            className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-              w-full ${sizeClasses[size]} bg-gray-800 rounded-xl shadow-2xl z-50
-              border border-gray-700`}
-            initial={{ opacity: 0, scale: 0.95, y: '-48%' }}
-            animate={{ opacity: 1, scale: 1, y: '-50%' }}
-            exit={{ opacity: 0, scale: 0.95, y: '-48%' }}
-            transition={{ duration: 0.15 }}
+            className={`fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           >
+            <motion.div
+              className={`w-full ${sizeClasses[size]} bg-gray-800 rounded-xl shadow-2xl
+                border border-gray-700 pointer-events-auto`}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+            >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
               <h2 className="text-lg font-semibold">{title}</h2>
@@ -60,6 +65,7 @@ export const Modal: React.FC<ModalProps> = ({
 
             {/* Content */}
             <div className="p-4 max-h-[70vh] overflow-y-auto">{children}</div>
+            </motion.div>
           </motion.div>
         </>
       )}

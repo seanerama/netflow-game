@@ -1,8 +1,10 @@
 import type { StateCreator } from 'zustand';
 import type { UIState, ModalType, Position } from '../../types';
+import type { ToastData } from '../../components/ui/Toast';
 
 export interface UISlice {
   ui: UIState;
+  toasts: ToastData[];
 
   // View actions
   setCurrentView: (view: UIState['currentView']) => void;
@@ -31,6 +33,10 @@ export interface UISlice {
   setHighlightedElements: (elements: string[]) => void;
   addHighlightedElement: (element: string) => void;
   removeHighlightedElement: (element: string) => void;
+
+  // Toast notifications
+  addToast: (toast: Omit<ToastData, 'id'>) => void;
+  dismissToast: (id: string) => void;
 }
 
 const initialUIState: UIState = {
@@ -49,6 +55,7 @@ const initialUIState: UIState = {
 
 export const createUISlice: StateCreator<UISlice> = (set) => ({
   ui: initialUIState,
+  toasts: [],
 
   setCurrentView: (view) =>
     set((state) => ({
@@ -183,5 +190,18 @@ export const createUISlice: StateCreator<UISlice> = (set) => ({
           (e) => e !== element
         ),
       },
+    })),
+
+  addToast: (toast) =>
+    set((state) => ({
+      toasts: [
+        ...state.toasts,
+        { ...toast, id: `toast-${Date.now()}-${Math.random().toString(36).slice(2)}` },
+      ],
+    })),
+
+  dismissToast: (id) =>
+    set((state) => ({
+      toasts: state.toasts.filter((t) => t.id !== id),
     })),
 });

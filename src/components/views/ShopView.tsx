@@ -97,7 +97,7 @@ function createDeviceFromHardware(item: HardwareItem, position: { x: number; y: 
 
 export const ShopView: React.FC = () => {
   const business = useBusiness();
-  const { addDevice, modifyCash, unlockedFeatures } = useGameStore();
+  const { addDevice, modifyCash, unlockedFeatures, addToast, setCurrentView } = useGameStore();
 
   const handlePurchase = (item: HardwareItem) => {
     if (business.cash < item.cost) {
@@ -116,6 +116,16 @@ export const ShopView: React.FC = () => {
     const device = createDeviceFromHardware(item, position);
     addDevice(device);
     modifyCash(-item.cost);
+
+    // Show purchase notification
+    addToast({
+      type: 'success',
+      message: `${item.name} purchased! View it in the Network tab.`,
+      action: {
+        label: 'Go to Network',
+        onClick: () => setCurrentView('network'),
+      },
+    });
   };
 
   const canAfford = (cost: number) => business.cash >= cost;
