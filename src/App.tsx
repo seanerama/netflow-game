@@ -11,7 +11,10 @@ import { EducationalSummary } from './components/summary/EducationalSummary';
 import { DialogueManager } from './components/dialogue/DialogueManager';
 import { FirewallConfigPanel } from './components/config/FirewallConfigPanel';
 import { SecurityChoice } from './components/test/SecurityChoice';
+import { GrowingPainsStore } from './components/store/GrowingPainsStore';
+import { NewPCConfig } from './components/config/NewPCConfig';
 import { successDialogue as mission12SuccessDialogue } from './data/mission1-2';
+import { configSuccessDialogue, testSuccessDialogue, foreshadowingDialogue } from './data/mission1-3';
 
 function App() {
   const phase = useGameStore((state) => state.phase);
@@ -29,6 +32,15 @@ function App() {
 
   const handleSecurityChoiceComplete = () => {
     setPhase('mission-select');
+  };
+
+  const handleGrowingStoreComplete = () => {
+    setPhase('new-pc-config');
+  };
+
+  const handleNewPCConfigComplete = () => {
+    addDialogue([...configSuccessDialogue, ...testSuccessDialogue, ...foreshadowingDialogue]);
+    setPhase('summary');
   };
 
   const renderPhase = () => {
@@ -55,6 +67,10 @@ function App() {
         return <FirewallConfigPanel onComplete={handleFirewallComplete} />;
       case 'security-choice':
         return <SecurityChoice onComplete={handleSecurityChoiceComplete} />;
+      case 'growing-store':
+        return <GrowingPainsStore onComplete={handleGrowingStoreComplete} />;
+      case 'new-pc-config':
+        return <NewPCConfig onComplete={handleNewPCConfigComplete} />;
       default:
         return <TitleScreen />;
     }

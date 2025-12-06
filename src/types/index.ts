@@ -13,7 +13,9 @@ export type GamePhase =
   | 'complete'        // Mission complete
   | 'firewall'        // Mission 1.2: Firewall config
   | 'security-choice' // Mission 1.2: Are we safe now?
-  | 'mission-select'; // Between missions
+  | 'mission-select'  // Between missions
+  | 'growing-store'   // Mission 1.3: Equipment decision
+  | 'new-pc-config';  // Mission 1.3: Configure new PCs
 
 export type SubMission = '1.1' | '1.2' | '1.3' | '1.4' | '1.5' | '1.6' | '1.7' | '1.8';
 
