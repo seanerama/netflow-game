@@ -10,7 +10,10 @@ export type GamePhase =
   | 'config'          // Device configuration
   | 'test'            // Testing network
   | 'summary'         // Educational summary
-  | 'complete';       // Mission complete
+  | 'complete'        // Mission complete
+  | 'firewall'        // Mission 1.2: Firewall config
+  | 'security-choice' // Mission 1.2: Are we safe now?
+  | 'mission-select'; // Between missions
 
 export type SubMission = '1.1' | '1.2' | '1.3' | '1.4' | '1.5' | '1.6' | '1.7' | '1.8';
 

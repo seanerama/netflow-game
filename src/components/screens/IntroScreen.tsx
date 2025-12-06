@@ -1,16 +1,24 @@
 import { useGameStore } from '../../store/gameStore';
 import { DialogueManager } from '../dialogue/DialogueManager';
 import { storeIntroDialogue } from '../../data/mission1-1';
+import { threatExplanation, configIntroDialogue } from '../../data/mission1-2';
 
 export function IntroScreen() {
   const setPhase = useGameStore((state) => state.setPhase);
   const addDialogue = useGameStore((state) => state.addDialogue);
   const dialogueQueue = useGameStore((state) => state.dialogueQueue);
+  const currentSubMission = useGameStore((state) => state.currentSubMission);
 
   const handleDialogueComplete = () => {
-    // After intro dialogue, add store intro and move to store
-    addDialogue(storeIntroDialogue);
-    setPhase('store');
+    if (currentSubMission === '1.1') {
+      // After intro dialogue, add store intro and move to store
+      addDialogue(storeIntroDialogue);
+      setPhase('store');
+    } else if (currentSubMission === '1.2') {
+      // For mission 1.2, show threat explanation then go to firewall config
+      addDialogue([...threatExplanation, ...configIntroDialogue]);
+      setPhase('firewall');
+    }
   };
 
   return (

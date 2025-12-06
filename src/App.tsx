@@ -2,18 +2,34 @@ import { useGameStore } from './store/gameStore';
 import { TitleScreen } from './components/screens/TitleScreen';
 import { IntroScreen } from './components/screens/IntroScreen';
 import { MissionCompleteScreen } from './components/screens/MissionCompleteScreen';
+import { MissionSelectScreen } from './components/screens/MissionSelectScreen';
 import { EquipmentStore } from './components/store/EquipmentStore';
 import { TopologyBuilder } from './components/topology/TopologyBuilder';
 import { ConfigScreen } from './components/config/ConfigScreen';
 import { NetworkTest } from './components/test/NetworkTest';
 import { EducationalSummary } from './components/summary/EducationalSummary';
 import { DialogueManager } from './components/dialogue/DialogueManager';
+import { FirewallConfigPanel } from './components/config/FirewallConfigPanel';
+import { SecurityChoice } from './components/test/SecurityChoice';
+import { successDialogue as mission12SuccessDialogue } from './data/mission1-2';
 
 function App() {
   const phase = useGameStore((state) => state.phase);
   const dialogueQueue = useGameStore((state) => state.dialogueQueue);
   const budget = useGameStore((state) => state.budget);
   const currentSubMission = useGameStore((state) => state.currentSubMission);
+
+  const setPhase = useGameStore((state) => state.setPhase);
+  const addDialogue = useGameStore((state) => state.addDialogue);
+
+  const handleFirewallComplete = () => {
+    addDialogue(mission12SuccessDialogue);
+    setPhase('security-choice');
+  };
+
+  const handleSecurityChoiceComplete = () => {
+    setPhase('mission-select');
+  };
 
   const renderPhase = () => {
     switch (phase) {
@@ -33,6 +49,12 @@ function App() {
         return <EducationalSummary />;
       case 'complete':
         return <MissionCompleteScreen />;
+      case 'mission-select':
+        return <MissionSelectScreen />;
+      case 'firewall':
+        return <FirewallConfigPanel onComplete={handleFirewallComplete} />;
+      case 'security-choice':
+        return <SecurityChoice onComplete={handleSecurityChoiceComplete} />;
       default:
         return <TitleScreen />;
     }

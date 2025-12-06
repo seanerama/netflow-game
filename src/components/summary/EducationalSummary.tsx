@@ -8,7 +8,8 @@ export function EducationalSummary() {
   const [expandedSection, setExpandedSection] = useState<number | null>(0);
 
   const handleComplete = () => {
-    setPhase('complete');
+    // After mission 1.1, go to mission select to pick next mission
+    setPhase('mission-select');
   };
 
   return (

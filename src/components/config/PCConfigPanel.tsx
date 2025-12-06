@@ -130,26 +130,30 @@ export function PCConfigPanel({ onComplete }: PCConfigPanelProps) {
         {/* PC List Sidebar */}
         <div className="w-48 bg-[#ece9d8] p-4 border-r-2 border-[#aca899]">
           <h3 className="text-[10px] text-[#003399] mb-4">COMPUTERS</h3>
-          {pcConfigs.map((pc, index) => (
-            <div
-              key={pc.name}
-              className={`flex items-center gap-2 p-2 mb-1 cursor-pointer border-2 ${
-                index === currentPCIndex
-                  ? 'bg-[#316ac5] border-[#316ac5] text-white'
-                  : completedPCs.includes(pc.name)
-                  ? 'bg-[#c1e2c1] border-[#a1c2a1]'
-                  : 'bg-white border-[#aca899] hover:bg-[#e8e8e8]'
-              }`}
-            >
-              <DevicePlaceholder type="pc" name={pc.name} size="sm" />
-              <div className="flex-1 text-[8px]">
-                <div className="font-bold">{pc.name}</div>
-                <div className={index === currentPCIndex ? 'text-white/80' : 'text-[#666]'}>
-                  {completedPCs.includes(pc.name) ? `✓ ${pc.ip}` : 'Not configured'}
+          {pcConfigs.map((pc, index) => {
+            const savedConfig = configState.pcConfigs[pc.name];
+            const isCompleted = completedPCs.includes(pc.name);
+            return (
+              <div
+                key={pc.name}
+                className={`flex items-center gap-2 p-2 mb-1 cursor-pointer border-2 ${
+                  index === currentPCIndex
+                    ? 'bg-[#316ac5] border-[#316ac5] text-white'
+                    : isCompleted
+                    ? 'bg-[#c1e2c1] border-[#a1c2a1]'
+                    : 'bg-white border-[#aca899] hover:bg-[#e8e8e8]'
+                }`}
+              >
+                <DevicePlaceholder type="pc" name={pc.name} size="sm" />
+                <div className="flex-1 text-[8px]">
+                  <div className="font-bold">{pc.name}</div>
+                  <div className={index === currentPCIndex ? 'text-white/80' : 'text-[#666]'}>
+                    {isCompleted && savedConfig ? `✓ ${savedConfig.ipAddress}` : 'Not configured'}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Configuration Panel */}
