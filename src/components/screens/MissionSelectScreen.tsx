@@ -2,6 +2,7 @@ import { useGameStore } from '../../store/gameStore';
 import { PixelButton, PixelPanel } from '../ui';
 import { introDialogue as mission12Intro } from '../../data/mission1-2';
 import { introDialogue as mission13Intro, MISSION_1_3_BUDGET } from '../../data/mission1-3';
+import { introDialogue as mission14Intro, MISSION_1_4_BUDGET } from '../../data/mission1-4';
 import type { SubMission } from '../../types';
 
 interface MissionInfo {
@@ -61,6 +62,11 @@ export function MissionSelectScreen() {
       setSubMission('1.3' as SubMission);
       setBudget(MISSION_1_3_BUDGET);
       addDialogue(mission13Intro);
+      setPhase('intro');
+    } else if (missionId === '1.4') {
+      setSubMission('1.4' as SubMission);
+      setBudget(MISSION_1_4_BUDGET);
+      addDialogue(mission14Intro);
       setPhase('intro');
     }
   };

@@ -13,8 +13,10 @@ import { FirewallConfigPanel } from './components/config/FirewallConfigPanel';
 import { SecurityChoice } from './components/test/SecurityChoice';
 import { GrowingPainsStore } from './components/store/GrowingPainsStore';
 import { NewPCConfig } from './components/config/NewPCConfig';
+import { DiagnosticsPanel } from './components/diagnostics/DiagnosticsPanel';
 import { successDialogue as mission12SuccessDialogue } from './data/mission1-2';
 import { configSuccessDialogue, testSuccessDialogue, foreshadowingDialogue } from './data/mission1-3';
+import { successDialogue as mission14SuccessDialogue } from './data/mission1-4';
 
 function App() {
   const phase = useGameStore((state) => state.phase);
@@ -40,6 +42,11 @@ function App() {
 
   const handleNewPCConfigComplete = () => {
     addDialogue([...configSuccessDialogue, ...testSuccessDialogue, ...foreshadowingDialogue]);
+    setPhase('summary');
+  };
+
+  const handleDiagnosticsComplete = () => {
+    addDialogue(mission14SuccessDialogue);
     setPhase('summary');
   };
 
@@ -71,6 +78,8 @@ function App() {
         return <GrowingPainsStore onComplete={handleGrowingStoreComplete} />;
       case 'new-pc-config':
         return <NewPCConfig onComplete={handleNewPCConfigComplete} />;
+      case 'diagnostics':
+        return <DiagnosticsPanel onComplete={handleDiagnosticsComplete} />;
       default:
         return <TitleScreen />;
     }

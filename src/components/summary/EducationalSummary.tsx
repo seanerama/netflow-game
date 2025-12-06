@@ -4,12 +4,14 @@ import { PixelButton, PixelPanel } from '../ui';
 import { educationalSummary as mission11Summary } from '../../data/mission1-1';
 import { educationalSummary as mission12Summary } from '../../data/mission1-2';
 import { educationalSummary as mission13Summary } from '../../data/mission1-3';
+import { educationalSummary as mission14Summary } from '../../data/mission1-4';
 import type { EducationalSection } from '../../types';
 
 const missionSummaries: Record<string, EducationalSection[]> = {
   '1.1': mission11Summary,
   '1.2': mission12Summary,
   '1.3': mission13Summary,
+  '1.4': mission14Summary,
 };
 
 const missionStats: Record<string, { devices: number; budget: string; next: { title: string; teaser: string } }> = {
@@ -35,6 +37,14 @@ const missionStats: Record<string, { devices: number; budget: string; next: { ti
     next: {
       title: 'Mission 1.4: "The Great Slowdown"',
       teaser: 'Everyone\'s complaining the internet is slow. Time to diagnose the problem...',
+    },
+  },
+  '1.4': {
+    devices: 8,
+    budget: '$0',
+    next: {
+      title: 'Mission 1.5: "Switching Things Up"',
+      teaser: 'Time to replace that hub with a proper switch. Bubba finally approved it!',
     },
   },
 };
