@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, AlertCircle, Info, X } from 'lucide-react';
+import { CheckCircle, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 
 export interface ToastData {
   id: string;
   message: string;
-  type: 'success' | 'error' | 'info';
+  type: 'success' | 'error' | 'warning' | 'info';
   duration?: number;
   action?: {
     label: string;
@@ -31,12 +31,14 @@ const Toast: React.FC<ToastProps> = ({ toast, onDismiss }) => {
   const icons = {
     success: <CheckCircle className="w-5 h-5 text-green-400" />,
     error: <AlertCircle className="w-5 h-5 text-red-400" />,
+    warning: <AlertTriangle className="w-5 h-5 text-yellow-400" />,
     info: <Info className="w-5 h-5 text-blue-400" />,
   };
 
   const bgColors = {
     success: 'bg-green-900/90 border-green-700',
     error: 'bg-red-900/90 border-red-700',
+    warning: 'bg-yellow-900/90 border-yellow-700',
     info: 'bg-blue-900/90 border-blue-700',
   };
 

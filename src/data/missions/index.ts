@@ -1,11 +1,13 @@
 import { MISSION_1_1, getNextHint as getNextHint_1_1 } from './mission1-1';
 import { MISSION_1_2, getNextHint as getNextHint_1_2 } from './mission1-2';
+import { MISSION_1_3, getNextHint as getNextHint_1_3 } from './mission1-3';
 import type { Mission, Hint } from '../../types';
 
 // All missions indexed by ID
 export const ALL_MISSIONS: Record<string, Mission> = {
   'mission-1-1': MISSION_1_1,
   'mission-1-2': MISSION_1_2,
+  'mission-1-3': MISSION_1_3,
 };
 
 // Get missions for a specific phase
@@ -25,6 +27,8 @@ export function getNextHintForMission(
       return getNextHint_1_1(completedObjectives) ?? null;
     case 'mission-1-2':
       return getNextHint_1_2(completedObjectives) ?? null;
+    case 'mission-1-3':
+      return getNextHint_1_3(completedObjectives) ?? null;
     default:
       return null;
   }
@@ -52,4 +56,4 @@ export function getAvailableMissions(completedMissions: string[]): Mission[] {
   );
 }
 
-export { MISSION_1_1, MISSION_1_2 };
+export { MISSION_1_1, MISSION_1_2, MISSION_1_3 };

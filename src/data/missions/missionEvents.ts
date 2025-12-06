@@ -114,5 +114,19 @@ export function onMissionComplete(missionId: string) {
       });
       break;
     }
+
+    case 'mission-1-3': {
+      // Grant rewards - emergency security budget
+      store.modifyCash(500);
+      store.addXP(75);
+      store.unlockFeature('router-business');
+
+      store.addToast({
+        type: 'success',
+        message:
+          '🎉 Mission Complete! Network secured. Rewards: $500 security budget, 75 XP, Business Router unlocked!',
+      });
+      break;
+    }
   }
 }
