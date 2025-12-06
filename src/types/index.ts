@@ -16,7 +16,9 @@ export type GamePhase =
   | 'mission-select'  // Between missions
   | 'growing-store'   // Mission 1.3: Equipment decision
   | 'new-pc-config'   // Mission 1.3: Configure new PCs
-  | 'diagnostics';    // Mission 1.4: Network diagnostics
+  | 'diagnostics'     // Mission 1.4: Network diagnostics
+  | 'switch-store'    // Mission 1.5: Buy the switch
+  | 'switch-install'; // Mission 1.5: Install the switch
 
 export type SubMission = '1.1' | '1.2' | '1.3' | '1.4' | '1.5' | '1.6' | '1.7' | '1.8';
 
@@ -60,6 +62,17 @@ export interface WrongChoiceFeedback {
   title: string;
   explanation: string;
   analogy?: string;
+}
+
+export interface StoreItem {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  icon: string;
+  category: string;
+  required: boolean;
+  hint?: string;
 }
 
 // ==================== TOPOLOGY ====================

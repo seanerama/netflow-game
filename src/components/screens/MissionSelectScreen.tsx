@@ -3,6 +3,7 @@ import { PixelButton, PixelPanel } from '../ui';
 import { introDialogue as mission12Intro } from '../../data/mission1-2';
 import { introDialogue as mission13Intro, MISSION_1_3_BUDGET } from '../../data/mission1-3';
 import { introDialogue as mission14Intro, MISSION_1_4_BUDGET } from '../../data/mission1-4';
+import { introDialogue as mission15Intro, MISSION_1_5_BUDGET } from '../../data/mission1-5';
 import type { SubMission } from '../../types';
 
 interface MissionInfo {
@@ -31,6 +32,11 @@ const missionData: MissionInfo[] = [
     id: '1.4',
     title: 'The Great Slowdown',
     description: 'Diagnose network performance issues',
+  },
+  {
+    id: '1.5',
+    title: 'Switching Things Up',
+    description: 'Replace the hub with a proper switch',
   },
 ];
 
@@ -67,6 +73,11 @@ export function MissionSelectScreen() {
       setSubMission('1.4' as SubMission);
       setBudget(MISSION_1_4_BUDGET);
       addDialogue(mission14Intro);
+      setPhase('intro');
+    } else if (missionId === '1.5') {
+      setSubMission('1.5' as SubMission);
+      setBudget(MISSION_1_5_BUDGET);
+      addDialogue(mission15Intro);
       setPhase('intro');
     }
   };

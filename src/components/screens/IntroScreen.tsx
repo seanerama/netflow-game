@@ -4,6 +4,7 @@ import { storeIntroDialogue } from '../../data/mission1-1';
 import { threatExplanation, configIntroDialogue } from '../../data/mission1-2';
 import { equipmentDialogue, bubbaStipulation } from '../../data/mission1-3';
 import { diagnosticsIntro } from '../../data/mission1-4';
+import { storeIntroDialogue as mission15StoreIntro } from '../../data/mission1-5';
 
 export function IntroScreen() {
   const setPhase = useGameStore((state) => state.setPhase);
@@ -28,6 +29,10 @@ export function IntroScreen() {
       // For mission 1.4, go straight to diagnostics
       addDialogue(diagnosticsIntro);
       setPhase('diagnostics');
+    } else if (currentSubMission === '1.5') {
+      // For mission 1.5, go to switch store
+      addDialogue(mission15StoreIntro);
+      setPhase('switch-store');
     }
   };
 

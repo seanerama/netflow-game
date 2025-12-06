@@ -5,6 +5,7 @@ import { educationalSummary as mission11Summary } from '../../data/mission1-1';
 import { educationalSummary as mission12Summary } from '../../data/mission1-2';
 import { educationalSummary as mission13Summary } from '../../data/mission1-3';
 import { educationalSummary as mission14Summary } from '../../data/mission1-4';
+import { educationalSummary as mission15Summary } from '../../data/mission1-5';
 import type { EducationalSection } from '../../types';
 
 const missionSummaries: Record<string, EducationalSection[]> = {
@@ -12,6 +13,7 @@ const missionSummaries: Record<string, EducationalSection[]> = {
   '1.2': mission12Summary,
   '1.3': mission13Summary,
   '1.4': mission14Summary,
+  '1.5': mission15Summary,
 };
 
 const missionStats: Record<string, { devices: number; budget: string; next: { title: string; teaser: string } }> = {
@@ -47,6 +49,14 @@ const missionStats: Record<string, { devices: number; budget: string; next: { ti
       teaser: 'Time to replace that hub with a proper switch. Bubba finally approved it!',
     },
   },
+  '1.5': {
+    devices: 8,
+    budget: '~$129',
+    next: {
+      title: 'Mission 1.6: "Sharing is Caring"',
+      teaser: 'Bubba wants everyone to access the same property documents. Time for file sharing!',
+    },
+  },
 };
 
 export function EducationalSummary() {
@@ -62,8 +72,8 @@ export function EducationalSummary() {
     // Advance to next sub-mission and go to mission select
     const currentNum = parseFloat(currentSubMission);
     const nextNum = (currentNum + 0.1).toFixed(1);
-    if (nextNum === '1.2' || nextNum === '1.3' || nextNum === '1.4') {
-      setSubMission(nextNum as '1.2' | '1.3' | '1.4');
+    if (nextNum === '1.2' || nextNum === '1.3' || nextNum === '1.4' || nextNum === '1.5' || nextNum === '1.6') {
+      setSubMission(nextNum as '1.2' | '1.3' | '1.4' | '1.5' | '1.6');
     }
     setPhase('mission-select');
   };

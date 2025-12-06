@@ -14,9 +14,12 @@ import { SecurityChoice } from './components/test/SecurityChoice';
 import { GrowingPainsStore } from './components/store/GrowingPainsStore';
 import { NewPCConfig } from './components/config/NewPCConfig';
 import { DiagnosticsPanel } from './components/diagnostics/DiagnosticsPanel';
+import { SwitchStore } from './components/store/SwitchStore';
+import { SwitchInstall } from './components/network/SwitchInstall';
 import { successDialogue as mission12SuccessDialogue } from './data/mission1-2';
 import { configSuccessDialogue, testSuccessDialogue, foreshadowingDialogue } from './data/mission1-3';
 import { successDialogue as mission14SuccessDialogue } from './data/mission1-4';
+import { successDialogue as mission15SuccessDialogue, installIntroDialogue } from './data/mission1-5';
 
 function App() {
   const phase = useGameStore((state) => state.phase);
@@ -50,6 +53,16 @@ function App() {
     setPhase('summary');
   };
 
+  const handleSwitchStoreComplete = () => {
+    addDialogue(installIntroDialogue);
+    setPhase('switch-install');
+  };
+
+  const handleSwitchInstallComplete = () => {
+    addDialogue(mission15SuccessDialogue);
+    setPhase('summary');
+  };
+
   const renderPhase = () => {
     switch (phase) {
       case 'title':
@@ -80,6 +93,10 @@ function App() {
         return <NewPCConfig onComplete={handleNewPCConfigComplete} />;
       case 'diagnostics':
         return <DiagnosticsPanel onComplete={handleDiagnosticsComplete} />;
+      case 'switch-store':
+        return <SwitchStore onComplete={handleSwitchStoreComplete} />;
+      case 'switch-install':
+        return <SwitchInstall onComplete={handleSwitchInstallComplete} />;
       default:
         return <TitleScreen />;
     }
