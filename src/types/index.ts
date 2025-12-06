@@ -490,6 +490,9 @@ export interface Mission {
   learningObjectives: LearningObjective[];
   hints: Hint[];
 
+  // Mission-specific configuration (choices, initial setup)
+  missionConfig?: MissionConfig;
+
   // Requirements
   prerequisites: string[]; // Mission IDs
   unlocks: string[]; // What completing this unlocks
@@ -558,6 +561,41 @@ export interface Hint {
 export interface HintCondition {
   type: 'time-elapsed' | 'attempts-failed' | 'requested' | 'stuck-on-step';
   value: unknown;
+}
+
+// ============================================================
+// CONFIGURATION CHOICES (Mission-based multiple choice system)
+// ============================================================
+
+/**
+ * Defines configuration choices for a specific device in a mission.
+ * Instead of free-form IP entry, players pick from curated options.
+ */
+export interface DeviceConfigChoices {
+  deviceId: string; // Which device these choices apply to
+  ipAddress?: ConfigChoice<IPv4Address>[];
+  subnetMask?: ConfigChoice<IPv4Address>[];
+  gateway?: ConfigChoice<IPv4Address>[];
+}
+
+export interface ConfigChoice<T> {
+  id: string;
+  value: T;
+  label: string; // Display label like "192.168.1.10"
+  isCorrect: boolean;
+  hintIfWrong: string; // Shown if player picks this wrong option
+}
+
+/**
+ * Mission-level configuration that defines all choices for that mission
+ */
+export interface MissionConfig {
+  /** Pre-configured devices that appear when mission starts */
+  initialDevices?: Partial<NetworkDevice>[];
+  /** Configuration choices for each configurable device */
+  configChoices: DeviceConfigChoices[];
+  /** Connections that should exist at mission start */
+  initialConnections?: Partial<Connection>[];
 }
 
 export interface Reward {

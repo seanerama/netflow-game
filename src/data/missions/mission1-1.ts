@@ -1,4 +1,244 @@
-import type { Mission } from '../../types';
+import type { Mission, MissionConfig, IPv4Address } from '../../types';
+
+// Helper to create IPv4Address from octets
+const ip = (a: number, b: number, c: number, d: number): IPv4Address => ({
+  octets: [a, b, c, d] as [number, number, number, number],
+});
+
+/**
+ * Mission 1-1 Configuration
+ * Defines the multiple-choice options for device configuration
+ */
+const MISSION_1_1_CONFIG: MissionConfig = {
+  configChoices: [
+    // Sarah's PC choices
+    {
+      deviceId: 'computer-sarah',
+      ipAddress: [
+        {
+          id: 'sarah-ip-correct',
+          value: ip(192, 168, 1, 10),
+          label: '192.168.1.10',
+          isCorrect: true,
+          hintIfWrong: '',
+        },
+        {
+          id: 'sarah-ip-wrong-subnet',
+          value: ip(10, 0, 0, 50),
+          label: '10.0.0.50',
+          isCorrect: false,
+          hintIfWrong: "This IP is in a different neighborhood (10.0.0.x) than the router (192.168.1.x). It's like mailing a letter to an address in another city - the local mail carrier can't deliver it!",
+        },
+        {
+          id: 'sarah-ip-router-duplicate',
+          value: ip(192, 168, 1, 1),
+          label: '192.168.1.1',
+          isCorrect: false,
+          hintIfWrong: "This is the router's IP address! Two devices can't have the same address - it's like two houses having the same street number. The mail carrier wouldn't know which door to deliver to!",
+        },
+        {
+          id: 'sarah-ip-public',
+          value: ip(203, 0, 113, 50),
+          label: '203.0.113.50',
+          isCorrect: false,
+          hintIfWrong: "This is a public IP address! Your internal network uses private addresses (192.168.x.x). Public IPs are like international phone numbers - you can't use them for internal office calls.",
+        },
+      ],
+      subnetMask: [
+        {
+          id: 'sarah-mask-correct',
+          value: ip(255, 255, 255, 0),
+          label: '255.255.255.0',
+          isCorrect: true,
+          hintIfWrong: '',
+        },
+        {
+          id: 'sarah-mask-wrong',
+          value: ip(255, 0, 0, 0),
+          label: '255.0.0.0',
+          isCorrect: false,
+          hintIfWrong: "This subnet mask is too broad - it defines a huge neighborhood. For a small office, use 255.255.255.0 to keep things simple and match the router's configuration.",
+        },
+      ],
+      gateway: [
+        {
+          id: 'sarah-gw-correct',
+          value: ip(192, 168, 1, 1),
+          label: '192.168.1.1',
+          isCorrect: true,
+          hintIfWrong: '',
+        },
+        {
+          id: 'sarah-gw-wrong-self',
+          value: ip(192, 168, 1, 10),
+          label: '192.168.1.10',
+          isCorrect: false,
+          hintIfWrong: "That's your own IP address! The gateway should be the router's address. It's like putting your own home as the post office address - your outgoing mail would just come back to you!",
+        },
+        {
+          id: 'sarah-gw-wrong-other',
+          value: ip(192, 168, 1, 11),
+          label: '192.168.1.11',
+          isCorrect: false,
+          hintIfWrong: "That's another computer's IP, not the router! The gateway must be the router's address. It's like dropping your mail in your neighbor's mailbox instead of the official mailbox - it won't get picked up!",
+        },
+        {
+          id: 'sarah-gw-wrong-subnet',
+          value: ip(10, 0, 0, 1),
+          label: '10.0.0.1',
+          isCorrect: false,
+          hintIfWrong: "This gateway is in a completely different neighborhood! Your gateway must be in the same subnet as your IP address. It's like trying to use a post office in another city.",
+        },
+      ],
+    },
+    // Mike's PC choices
+    {
+      deviceId: 'computer-mike',
+      ipAddress: [
+        {
+          id: 'mike-ip-correct',
+          value: ip(192, 168, 1, 11),
+          label: '192.168.1.11',
+          isCorrect: true,
+          hintIfWrong: '',
+        },
+        {
+          id: 'mike-ip-wrong-subnet',
+          value: ip(172, 16, 0, 11),
+          label: '172.16.0.11',
+          isCorrect: false,
+          hintIfWrong: "This IP is in a different neighborhood (172.16.x.x) than the router (192.168.1.x). All devices on your network need to be in the same subnet to communicate directly.",
+        },
+        {
+          id: 'mike-ip-duplicate-sarah',
+          value: ip(192, 168, 1, 10),
+          label: '192.168.1.10',
+          isCorrect: false,
+          hintIfWrong: "This IP is already used by Sarah's PC! Every device needs a unique address. It's like two houses having the same street number - the mail carrier wouldn't know where to deliver!",
+        },
+        {
+          id: 'mike-ip-router-duplicate',
+          value: ip(192, 168, 1, 1),
+          label: '192.168.1.1',
+          isCorrect: false,
+          hintIfWrong: "This is the router's IP address! Two devices can't share an address.",
+        },
+      ],
+      subnetMask: [
+        {
+          id: 'mike-mask-correct',
+          value: ip(255, 255, 255, 0),
+          label: '255.255.255.0',
+          isCorrect: true,
+          hintIfWrong: '',
+        },
+        {
+          id: 'mike-mask-wrong',
+          value: ip(255, 255, 0, 0),
+          label: '255.255.0.0',
+          isCorrect: false,
+          hintIfWrong: "This subnet mask doesn't match the router's configuration. All devices on the same network should use the same subnet mask.",
+        },
+      ],
+      gateway: [
+        {
+          id: 'mike-gw-correct',
+          value: ip(192, 168, 1, 1),
+          label: '192.168.1.1',
+          isCorrect: true,
+          hintIfWrong: '',
+        },
+        {
+          id: 'mike-gw-wrong-self',
+          value: ip(192, 168, 1, 11),
+          label: '192.168.1.11',
+          isCorrect: false,
+          hintIfWrong: "That's your own IP address! The gateway should be the router's address (192.168.1.1).",
+        },
+        {
+          id: 'mike-gw-wrong-other',
+          value: ip(192, 168, 1, 10),
+          label: '192.168.1.10',
+          isCorrect: false,
+          hintIfWrong: "That's Sarah's computer, not the router! The gateway must be the router's address - it's the door to the outside world.",
+        },
+      ],
+    },
+    // Lisa's PC choices
+    {
+      deviceId: 'computer-lisa',
+      ipAddress: [
+        {
+          id: 'lisa-ip-correct',
+          value: ip(192, 168, 1, 12),
+          label: '192.168.1.12',
+          isCorrect: true,
+          hintIfWrong: '',
+        },
+        {
+          id: 'lisa-ip-wrong-subnet',
+          value: ip(192, 168, 2, 12),
+          label: '192.168.2.12',
+          isCorrect: false,
+          hintIfWrong: "Close, but this is in subnet 192.168.2.x while your router is in 192.168.1.x! Even one number off means a different neighborhood. Change the third number to 1.",
+        },
+        {
+          id: 'lisa-ip-duplicate-mike',
+          value: ip(192, 168, 1, 11),
+          label: '192.168.1.11',
+          isCorrect: false,
+          hintIfWrong: "This IP is already used by Mike's PC! Every device needs its own unique address.",
+        },
+        {
+          id: 'lisa-ip-duplicate-sarah',
+          value: ip(192, 168, 1, 10),
+          label: '192.168.1.10',
+          isCorrect: false,
+          hintIfWrong: "This IP is already used by Sarah's PC! Pick a unique address for Lisa.",
+        },
+      ],
+      subnetMask: [
+        {
+          id: 'lisa-mask-correct',
+          value: ip(255, 255, 255, 0),
+          label: '255.255.255.0',
+          isCorrect: true,
+          hintIfWrong: '',
+        },
+        {
+          id: 'lisa-mask-wrong',
+          value: ip(255, 255, 255, 128),
+          label: '255.255.255.128',
+          isCorrect: false,
+          hintIfWrong: "This mask creates a smaller subnet that might not include the router. Use 255.255.255.0 to match the router's configuration.",
+        },
+      ],
+      gateway: [
+        {
+          id: 'lisa-gw-correct',
+          value: ip(192, 168, 1, 1),
+          label: '192.168.1.1',
+          isCorrect: true,
+          hintIfWrong: '',
+        },
+        {
+          id: 'lisa-gw-wrong-self',
+          value: ip(192, 168, 1, 12),
+          label: '192.168.1.12',
+          isCorrect: false,
+          hintIfWrong: "That's Lisa's own IP! The gateway should be the router's address.",
+        },
+        {
+          id: 'lisa-gw-wrong-internet',
+          value: ip(203, 0, 113, 1),
+          label: '203.0.113.1',
+          isCorrect: false,
+          hintIfWrong: "That's the public IP! Your gateway should be the router's internal (LAN) address, not its public address. Use 192.168.1.1.",
+        },
+      ],
+    },
+  ],
+};
 
 /**
  * Mission 1-1: Getting Online
@@ -339,6 +579,9 @@ That's the magic of NAT - one public address, many private devices!
       type: 'dialog',
     },
   ],
+
+  // Mission-specific configuration choices
+  missionConfig: MISSION_1_1_CONFIG,
 
   prerequisites: [],
   unlocks: ['mission-1-2'], // Unlocks the Layer 2 switch mission

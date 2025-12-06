@@ -2,6 +2,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { useGameStore, useDevices, useConnections } from '../store/gameStore';
 import type { NetworkDevice, RouterConfig } from '../types';
 import { spawnAttackWave } from '../simulation/packetEngine';
+import { ALL_MISSIONS } from '../data/missions';
 
 /**
  * Hook to automatically check and update mission objectives based on game state.
@@ -76,6 +77,87 @@ export function useMissionProgress() {
     ): boolean => {
       if (!ip1 || !ip2) return false;
       return ip1.octets.every((octet, i) => octet === ip2.octets[i]);
+    };
+
+    // Check if a device has the correct mission config (all choices selected correctly)
+    const hasCorrectMissionConfig = (device: NetworkDevice): boolean => {
+      // If no current mission or no mission config, fall back to standard validation
+      if (!currentMission) return false;
+
+      const missionData = ALL_MISSIONS[currentMission];
+      if (!missionData?.missionConfig?.configChoices) return false;
+
+      const deviceChoices = missionData.missionConfig.configChoices.find(
+        (c) => c.deviceId === device.id
+      );
+      if (!deviceChoices) return false; // No choices defined for this device
+
+      const deviceInterface = device.interfaces.find((i) => i.ipAddress || deviceChoices);
+      if (!deviceInterface) return false;
+
+      // Check IP address
+      if (deviceChoices.ipAddress) {
+        const correctIP = deviceChoices.ipAddress.find((c) => c.isCorrect);
+        if (!correctIP || !ipEquals(deviceInterface.ipAddress, correctIP.value)) {
+          return false;
+        }
+      }
+
+      // Check subnet mask
+      if (deviceChoices.subnetMask) {
+        const correctMask = deviceChoices.subnetMask.find((c) => c.isCorrect);
+        if (!correctMask || !ipEquals(deviceInterface.subnetMask, correctMask.value)) {
+          return false;
+        }
+      }
+
+      // Check gateway
+      if (deviceChoices.gateway) {
+        const correctGW = deviceChoices.gateway.find((c) => c.isCorrect);
+        if (!correctGW || !ipEquals(deviceInterface.gateway, correctGW.value)) {
+          return false;
+        }
+      }
+
+      return true;
+    };
+
+    // Check if device has correct IP for mission (regardless of mask/gateway)
+    const hasCorrectIP = (device: NetworkDevice): boolean => {
+      if (!currentMission) return hasIP(device);
+
+      const missionData = ALL_MISSIONS[currentMission];
+      if (!missionData?.missionConfig?.configChoices) return hasIP(device);
+
+      const deviceChoices = missionData.missionConfig.configChoices.find(
+        (c) => c.deviceId === device.id
+      );
+      if (!deviceChoices?.ipAddress) return hasIP(device);
+
+      const deviceInterface = device.interfaces.find((i) => i.ipAddress);
+      if (!deviceInterface) return false;
+
+      const correctIP = deviceChoices.ipAddress.find((c) => c.isCorrect);
+      return correctIP ? ipEquals(deviceInterface.ipAddress, correctIP.value) : hasIP(device);
+    };
+
+    // Check if device has correct gateway for mission
+    const hasCorrectGateway = (device: NetworkDevice): boolean => {
+      if (!currentMission) return hasGateway(device);
+
+      const missionData = ALL_MISSIONS[currentMission];
+      if (!missionData?.missionConfig?.configChoices) return hasGateway(device);
+
+      const deviceChoices = missionData.missionConfig.configChoices.find(
+        (c) => c.deviceId === device.id
+      );
+      if (!deviceChoices?.gateway) return hasGateway(device);
+
+      const deviceInterface = device.interfaces.find((i) => i.gateway);
+      if (!deviceInterface) return false;
+
+      const correctGW = deviceChoices.gateway.find((c) => c.isCorrect);
+      return correctGW ? ipEquals(deviceInterface.gateway, correctGW.value) : hasGateway(device);
     };
 
     // Calculate network address by applying subnet mask to IP
@@ -202,6 +284,69 @@ export function useMissionProgress() {
     };
 
     const canReachInternet = (device: NetworkDevice) => {
+      // For missions with config choices, use simplified validation:
+      // Just check if device has all correct config choices selected
+      const missionData = currentMission ? ALL_MISSIONS[currentMission] : undefined;
+      const hasMissionChoices = missionData?.missionConfig?.configChoices?.some(
+        (c) => c.deviceId === device.id
+      );
+
+      if (hasMissionChoices) {
+        // Mission-based validation: device needs correct IP, mask, gateway
+        // AND physical connection to router through hub/switch
+        if (!hasCorrectMissionConfig(device)) return false;
+
+        // Check physical path to router
+        const routers = getDevicesOfType('router');
+        const connectedRouter = routers.find((router) => {
+          // Router must be connected to internet
+          if (!isConnectedToId(router, 'internet')) return false;
+
+          // Router must have NAT enabled
+          const routerConfig = router.config as RouterConfig;
+          if (!routerConfig.nat?.enabled) return false;
+
+          // Device must have a path to this router
+          const deviceConnections = connectionList.filter(
+            (conn) =>
+              conn.fromDevice === device.id || conn.toDevice === device.id
+          );
+
+          for (const conn of deviceConnections) {
+            const otherDeviceId =
+              conn.fromDevice === device.id ? conn.toDevice : conn.fromDevice;
+
+            // Direct connection to router
+            if (otherDeviceId === router.id) return true;
+
+            // Connected through hub/switch
+            const otherDevice = devices[otherDeviceId];
+            if (
+              otherDevice &&
+              (otherDevice.type === 'hub' || otherDevice.type === 'switch')
+            ) {
+              const hubConnections = connectionList.filter(
+                (c) =>
+                  c.fromDevice === otherDevice.id ||
+                  c.toDevice === otherDevice.id
+              );
+              for (const hubConn of hubConnections) {
+                const hubOther =
+                  hubConn.fromDevice === otherDevice.id
+                    ? hubConn.toDevice
+                    : hubConn.fromDevice;
+                if (hubOther === router.id) return true;
+              }
+            }
+          }
+
+          return false;
+        });
+
+        return !!connectedRouter;
+      }
+
+      // Standard validation (for missions without config choices)
       // A device can reach internet if:
       // 1. It has an IP address with subnet mask
       // 2. It has a gateway set
@@ -324,8 +469,9 @@ export function useMissionProgress() {
         // Assign IPs to all computers
         case 'obj-configure-ips': {
           const computers = getDevicesOfType('computer');
-          const computersWithIP = computers.filter(hasIP);
-          newCurrent = computersWithIP.length;
+          // Use mission-aware IP check (requires correct IP if mission has choices)
+          const computersWithCorrectIP = computers.filter(hasCorrectIP);
+          newCurrent = computersWithCorrectIP.length;
           shouldComplete = newCurrent >= objective.required;
           break;
         }
@@ -333,8 +479,9 @@ export function useMissionProgress() {
         // Set gateway on all computers
         case 'obj-configure-gateways': {
           const computers = getDevicesOfType('computer');
-          const computersWithGateway = computers.filter(hasGateway);
-          newCurrent = computersWithGateway.length;
+          // Use mission-aware gateway check (requires correct gateway if mission has choices)
+          const computersWithCorrectGateway = computers.filter(hasCorrectGateway);
+          newCurrent = computersWithCorrectGateway.length;
           shouldComplete = newCurrent >= objective.required;
           break;
         }

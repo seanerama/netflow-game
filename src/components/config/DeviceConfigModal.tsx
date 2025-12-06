@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Modal } from '../ui/Modal';
 import { useGameStore, useDevices } from '../../store/gameStore';
 import { v4 as uuidv4 } from 'uuid';
-import type { Connection, NetworkInterface, RouterConfig } from '../../types';
-import { Trash2, Link, Settings, Network, Globe, AlertTriangle } from 'lucide-react';
+import type { Connection, NetworkInterface, RouterConfig, ConfigChoice, IPv4Address, DeviceConfigChoices } from '../../types';
+import { Trash2, Link, Settings, Network, Globe, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { ALL_MISSIONS } from '../../data/missions';
 
 interface DeviceConfigModalProps {
   isOpen: boolean;
@@ -287,11 +288,15 @@ const DeviceSettingsModal: React.FC<{
   deviceId?: string;
 }> = ({ isOpen, onClose, deviceId }) => {
   const devices = useDevices();
-  const { updateDevice, removeDevice, setDeviceStatus } = useGameStore();
+  const { updateDevice, removeDevice, setDeviceStatus, currentMission } = useGameStore();
 
   const device = deviceId ? devices[deviceId] : null;
 
   const [activeTab, setActiveTab] = useState<'general' | 'interfaces'>('general');
+
+  // Get mission config choices for this device
+  const configChoices = deviceId ? getDeviceConfigChoices(deviceId, currentMission ?? undefined) : undefined;
+  const hasChoiceBasedConfig = !!configChoices;
 
   if (!device) {
     return null;
@@ -406,14 +411,30 @@ const DeviceSettingsModal: React.FC<{
 
       {activeTab === 'interfaces' && (
         <div className="space-y-3">
+          {hasChoiceBasedConfig && (
+            <div className="mb-3 p-2 bg-blue-900/30 border border-blue-700 rounded-lg">
+              <p className="text-xs text-blue-300">
+                Mission Mode: Select the correct configuration options below
+              </p>
+            </div>
+          )}
           {device.interfaces.map((iface) => (
-            <InterfaceConfig
-              key={iface.id}
-              iface={iface}
-              deviceId={device.id}
-              deviceType={device.type}
-              isISP={isISP}
-            />
+            hasChoiceBasedConfig && configChoices ? (
+              <ChoiceBasedConfig
+                key={iface.id}
+                iface={iface}
+                deviceId={device.id}
+                choices={configChoices}
+              />
+            ) : (
+              <InterfaceConfig
+                key={iface.id}
+                iface={iface}
+                deviceId={device.id}
+                deviceType={device.type}
+                isISP={isISP}
+              />
+            )
           ))}
         </div>
       )}
@@ -430,6 +451,150 @@ const COMMON_SUBNETS = [
   { label: '/28 (255.255.255.240) - 14 hosts', octets: [255, 255, 255, 240] },
   { label: '/16 (255.255.0.0) - 65534 hosts', octets: [255, 255, 0, 0] },
 ];
+
+// Helper to get mission config choices for a device
+const getDeviceConfigChoices = (deviceId: string, missionId: string | undefined): DeviceConfigChoices | undefined => {
+  if (!missionId) return undefined;
+  const mission = ALL_MISSIONS[missionId];
+  if (!mission?.missionConfig?.configChoices) return undefined;
+  return mission.missionConfig.configChoices.find((c) => c.deviceId === deviceId);
+};
+
+// Helper to compare IPv4 addresses
+const ipEquals = (a: IPv4Address | undefined, b: IPv4Address | undefined): boolean => {
+  if (!a || !b) return false;
+  return a.octets.every((octet, i) => octet === b.octets[i]);
+};
+
+// Choice-based IP configuration component for missions
+const ChoiceBasedConfig: React.FC<{
+  iface: NetworkInterface;
+  deviceId: string;
+  choices: DeviceConfigChoices;
+}> = ({ iface, deviceId, choices }) => {
+  const { updateDevice, addToast } = useGameStore();
+  const devices = useDevices();
+  const device = devices[deviceId];
+
+  const [wrongChoice, setWrongChoice] = useState<string | null>(null);
+
+  // Update interface in store
+  const updateInterface = (updates: Partial<NetworkInterface>) => {
+    const newInterfaces = device.interfaces.map((i) =>
+      i.id === iface.id ? { ...i, ...updates } : i
+    );
+    updateDevice(deviceId, { interfaces: newInterfaces });
+  };
+
+  const handleChoiceSelect = (
+    type: 'ipAddress' | 'subnetMask' | 'gateway',
+    choice: ConfigChoice<IPv4Address>
+  ) => {
+    if (choice.isCorrect) {
+      // Apply the correct value
+      updateInterface({ [type]: choice.value });
+      setWrongChoice(null);
+    } else {
+      // Show the hint for wrong choice
+      setWrongChoice(choice.id);
+      addToast({
+        type: 'warning',
+        message: choice.hintIfWrong,
+        duration: 8000,
+      });
+    }
+  };
+
+  // Find what this interface is connected to
+  const getConnectedDeviceName = () => {
+    if (!iface.connectedTo) return null;
+    for (const dev of Object.values(devices)) {
+      for (const intf of dev.interfaces) {
+        if (intf.id === iface.connectedTo) {
+          return `${dev.name} (${intf.name})`;
+        }
+      }
+    }
+    return 'Unknown';
+  };
+
+  const connectedTo = getConnectedDeviceName();
+
+  // Render choice buttons for a config type
+  const renderChoices = (
+    type: 'ipAddress' | 'subnetMask' | 'gateway',
+    label: string,
+    availableChoices: ConfigChoice<IPv4Address>[] | undefined,
+    currentValue: IPv4Address | undefined
+  ) => {
+    if (!availableChoices || availableChoices.length === 0) return null;
+
+    return (
+      <div className="mb-4">
+        <label className="block text-xs text-gray-400 mb-2">{label}</label>
+        <div className="flex flex-wrap gap-2">
+          {availableChoices.map((choice) => {
+            const isSelected = ipEquals(currentValue, choice.value);
+            const isWrong = wrongChoice === choice.id;
+            const isCorrectlySelected = isSelected && choice.isCorrect;
+
+            return (
+              <button
+                key={choice.id}
+                onClick={() => handleChoiceSelect(type, choice)}
+                className={`
+                  px-3 py-2 rounded-lg text-sm font-mono flex items-center gap-2 transition-all
+                  ${isCorrectlySelected
+                    ? 'bg-green-900/50 border-2 border-green-500 text-green-300'
+                    : isWrong
+                    ? 'bg-red-900/30 border-2 border-red-500 text-red-300 animate-pulse'
+                    : 'bg-gray-700 border-2 border-gray-600 hover:border-blue-500 text-gray-200'
+                  }
+                `}
+              >
+                {choice.label}
+                {isCorrectlySelected && <CheckCircle className="w-4 h-4 text-green-400" />}
+                {isWrong && <XCircle className="w-4 h-4 text-red-400" />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="p-3 bg-gray-900 rounded-lg">
+      <div className="flex items-center justify-between mb-2">
+        <span className="font-medium text-sm">{iface.name}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-500">{iface.speed} Mbps</span>
+          <span
+            className={`w-2 h-2 rounded-full ${
+              iface.isUp ? 'bg-green-500' : 'bg-gray-500'
+            }`}
+          />
+        </div>
+      </div>
+
+      {/* Connection status */}
+      {connectedTo && (
+        <div className="text-xs text-blue-400 mb-3 flex items-center gap-1">
+          <Link className="w-3 h-3" />
+          Connected to: {connectedTo}
+        </div>
+      )}
+
+      <div className="text-xs text-gray-500 mb-3 italic">
+        Choose the correct configuration for this device:
+      </div>
+
+      {renderChoices('ipAddress', 'IP Address', choices.ipAddress, iface.ipAddress)}
+      {renderChoices('subnetMask', 'Subnet Mask', choices.subnetMask, iface.subnetMask)}
+      {renderChoices('gateway', 'Default Gateway', choices.gateway, iface.gateway)}
+    </div>
+  );
+};
 
 // Interface Configuration Component
 const InterfaceConfig: React.FC<{
