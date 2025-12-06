@@ -16,10 +16,16 @@ import { NewPCConfig } from './components/config/NewPCConfig';
 import { DiagnosticsPanel } from './components/diagnostics/DiagnosticsPanel';
 import { SwitchStore } from './components/store/SwitchStore';
 import { SwitchInstall } from './components/network/SwitchInstall';
+import { FileShareSetup } from './components/config/FileShareSetup';
+import { PrinterSetup } from './components/config/PrinterSetup';
+import { HiredScreen } from './components/screens/HiredScreen';
+import { DebugPanel } from './components/debug/DebugPanel';
 import { successDialogue as mission12SuccessDialogue } from './data/mission1-2';
 import { configSuccessDialogue, testSuccessDialogue, foreshadowingDialogue } from './data/mission1-3';
 import { successDialogue as mission14SuccessDialogue } from './data/mission1-4';
 import { successDialogue as mission15SuccessDialogue, installIntroDialogue } from './data/mission1-5';
+import { successDialogue as mission16SuccessDialogue } from './data/mission1-6';
+import { successDialogue as mission17SuccessDialogue } from './data/mission1-7';
 
 function App() {
   const phase = useGameStore((state) => state.phase);
@@ -63,6 +69,21 @@ function App() {
     setPhase('summary');
   };
 
+  const handleFileShareComplete = () => {
+    addDialogue(mission16SuccessDialogue);
+    setPhase('summary');
+  };
+
+  const handlePrinterSetupComplete = () => {
+    addDialogue(mission17SuccessDialogue);
+    setPhase('summary');
+  };
+
+  const handleHiredComplete = () => {
+    // Mission 1 complete - return to title for now (Mission 2 coming soon)
+    setPhase('title');
+  };
+
   const renderPhase = () => {
     switch (phase) {
       case 'title':
@@ -97,6 +118,12 @@ function App() {
         return <SwitchStore onComplete={handleSwitchStoreComplete} />;
       case 'switch-install':
         return <SwitchInstall onComplete={handleSwitchInstallComplete} />;
+      case 'file-share':
+        return <FileShareSetup onComplete={handleFileShareComplete} />;
+      case 'printer-setup':
+        return <PrinterSetup onComplete={handlePrinterSetupComplete} />;
+      case 'hired':
+        return <HiredScreen onComplete={handleHiredComplete} />;
       default:
         return <TitleScreen />;
     }
@@ -126,6 +153,9 @@ function App() {
       {phase === 'store' && dialogueQueue.length > 0 && (
         <DialogueManager />
       )}
+
+      {/* Debug Panel - toggle with Ctrl+Shift+D */}
+      <DebugPanel />
     </div>
   );
 }

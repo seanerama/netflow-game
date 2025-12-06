@@ -4,6 +4,9 @@ import { introDialogue as mission12Intro } from '../../data/mission1-2';
 import { introDialogue as mission13Intro, MISSION_1_3_BUDGET } from '../../data/mission1-3';
 import { introDialogue as mission14Intro, MISSION_1_4_BUDGET } from '../../data/mission1-4';
 import { introDialogue as mission15Intro, MISSION_1_5_BUDGET } from '../../data/mission1-5';
+import { introDialogue as mission16Intro, MISSION_1_6_BUDGET } from '../../data/mission1-6';
+import { introDialogue as mission17Intro, MISSION_1_7_BUDGET } from '../../data/mission1-7';
+import { introDialogue as mission18Intro, MISSION_1_8_BUDGET } from '../../data/mission1-8';
 import type { SubMission } from '../../types';
 
 interface MissionInfo {
@@ -37,6 +40,21 @@ const missionData: MissionInfo[] = [
     id: '1.5',
     title: 'Switching Things Up',
     description: 'Replace the hub with a proper switch',
+  },
+  {
+    id: '1.6',
+    title: 'Sharing is Caring',
+    description: 'Set up file sharing for the office',
+  },
+  {
+    id: '1.7',
+    title: 'Print Money',
+    description: 'Set up the network printer',
+  },
+  {
+    id: '1.8',
+    title: "You're Hired!",
+    description: 'Bubba has an important question for you',
   },
 ];
 
@@ -78,6 +96,21 @@ export function MissionSelectScreen() {
       setSubMission('1.5' as SubMission);
       setBudget(MISSION_1_5_BUDGET);
       addDialogue(mission15Intro);
+      setPhase('intro');
+    } else if (missionId === '1.6') {
+      setSubMission('1.6' as SubMission);
+      setBudget(MISSION_1_6_BUDGET);
+      addDialogue(mission16Intro);
+      setPhase('intro');
+    } else if (missionId === '1.7') {
+      setSubMission('1.7' as SubMission);
+      setBudget(MISSION_1_7_BUDGET);
+      addDialogue(mission17Intro);
+      setPhase('intro');
+    } else if (missionId === '1.8') {
+      setSubMission('1.8' as SubMission);
+      setBudget(MISSION_1_8_BUDGET);
+      addDialogue(mission18Intro);
       setPhase('intro');
     }
   };

@@ -6,6 +6,9 @@ import { educationalSummary as mission12Summary } from '../../data/mission1-2';
 import { educationalSummary as mission13Summary } from '../../data/mission1-3';
 import { educationalSummary as mission14Summary } from '../../data/mission1-4';
 import { educationalSummary as mission15Summary } from '../../data/mission1-5';
+import { educationalSummary as mission16Summary } from '../../data/mission1-6';
+import { educationalSummary as mission17Summary } from '../../data/mission1-7';
+import { educationalSummary as mission18Summary } from '../../data/mission1-8';
 import type { EducationalSection } from '../../types';
 
 const missionSummaries: Record<string, EducationalSection[]> = {
@@ -14,6 +17,9 @@ const missionSummaries: Record<string, EducationalSection[]> = {
   '1.3': mission13Summary,
   '1.4': mission14Summary,
   '1.5': mission15Summary,
+  '1.6': mission16Summary,
+  '1.7': mission17Summary,
+  '1.8': mission18Summary,
 };
 
 const missionStats: Record<string, { devices: number; budget: string; next: { title: string; teaser: string } }> = {
@@ -57,6 +63,30 @@ const missionStats: Record<string, { devices: number; budget: string; next: { ti
       teaser: 'Bubba wants everyone to access the same property documents. Time for file sharing!',
     },
   },
+  '1.6': {
+    devices: 8,
+    budget: '$0',
+    next: {
+      title: 'Mission 1.7: "Print Money"',
+      teaser: 'Bubba wants everyone to print. Time to set up a network printer!',
+    },
+  },
+  '1.7': {
+    devices: 9,
+    budget: '~$137',
+    next: {
+      title: 'Mission 1.8: "You\'re Hired!"',
+      teaser: 'Bubba has an important question for you...',
+    },
+  },
+  '1.8': {
+    devices: 9,
+    budget: '$0',
+    next: {
+      title: 'Mission Complete!',
+      teaser: 'You\'ve mastered the basics of networking.',
+    },
+  },
 };
 
 export function EducationalSummary() {
@@ -72,8 +102,8 @@ export function EducationalSummary() {
     // Advance to next sub-mission and go to mission select
     const currentNum = parseFloat(currentSubMission);
     const nextNum = (currentNum + 0.1).toFixed(1);
-    if (nextNum === '1.2' || nextNum === '1.3' || nextNum === '1.4' || nextNum === '1.5' || nextNum === '1.6') {
-      setSubMission(nextNum as '1.2' | '1.3' | '1.4' | '1.5' | '1.6');
+    if (nextNum === '1.2' || nextNum === '1.3' || nextNum === '1.4' || nextNum === '1.5' || nextNum === '1.6' || nextNum === '1.7' || nextNum === '1.8') {
+      setSubMission(nextNum as '1.2' | '1.3' | '1.4' | '1.5' | '1.6' | '1.7' | '1.8');
     }
     setPhase('mission-select');
   };

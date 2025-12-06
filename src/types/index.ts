@@ -18,7 +18,10 @@ export type GamePhase =
   | 'new-pc-config'   // Mission 1.3: Configure new PCs
   | 'diagnostics'     // Mission 1.4: Network diagnostics
   | 'switch-store'    // Mission 1.5: Buy the switch
-  | 'switch-install'; // Mission 1.5: Install the switch
+  | 'switch-install'  // Mission 1.5: Install the switch
+  | 'file-share'      // Mission 1.6: File sharing setup
+  | 'printer-setup'   // Mission 1.7: Network printer setup
+  | 'hired';          // Mission 1.8: You're Hired!
 
 export type SubMission = '1.1' | '1.2' | '1.3' | '1.4' | '1.5' | '1.6' | '1.7' | '1.8';
 

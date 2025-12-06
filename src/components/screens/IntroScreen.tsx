@@ -5,6 +5,9 @@ import { threatExplanation, configIntroDialogue } from '../../data/mission1-2';
 import { equipmentDialogue, bubbaStipulation } from '../../data/mission1-3';
 import { diagnosticsIntro } from '../../data/mission1-4';
 import { storeIntroDialogue as mission15StoreIntro } from '../../data/mission1-5';
+import { fileShareIntro } from '../../data/mission1-6';
+import { printerStoreIntro } from '../../data/mission1-7';
+import { introDialogue as mission18Intro } from '../../data/mission1-8';
 
 export function IntroScreen() {
   const setPhase = useGameStore((state) => state.setPhase);
@@ -33,6 +36,18 @@ export function IntroScreen() {
       // For mission 1.5, go to switch store
       addDialogue(mission15StoreIntro);
       setPhase('switch-store');
+    } else if (currentSubMission === '1.6') {
+      // For mission 1.6, go to file share setup
+      addDialogue(fileShareIntro);
+      setPhase('file-share');
+    } else if (currentSubMission === '1.7') {
+      // For mission 1.7, go to printer setup
+      addDialogue(printerStoreIntro);
+      setPhase('printer-setup');
+    } else if (currentSubMission === '1.8') {
+      // For mission 1.8, go to hired screen
+      addDialogue(mission18Intro);
+      setPhase('hired');
     }
   };
 
