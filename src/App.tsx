@@ -1,93 +1,83 @@
-import { useEffect, useState } from 'react';
-import { GameLayout } from './components/layout/GameLayout';
-import { NetworkView } from './components/views/NetworkView';
-import { ShopView } from './components/views/ShopView';
-import { MissionView } from './components/views/MissionView';
-import { LandingPage } from './components/views/LandingPage';
-import { DeviceConfigModal } from './components/config/DeviceConfigModal';
-import { ToastContainer } from './components/ui/Toast';
-import { useGameStore, useUIState, useToasts } from './store/gameStore';
-import { initializeGameState } from './data/initialState';
-import { useMissionProgress } from './hooks/useMissionProgress';
-import './index.css';
+import { useGameStore } from './store/gameStore';
+import { TitleScreen } from './components/screens/TitleScreen';
+import { IntroScreen } from './components/screens/IntroScreen';
+import { MissionCompleteScreen } from './components/screens/MissionCompleteScreen';
+import { EquipmentStore } from './components/store/EquipmentStore';
+import { TopologyBuilder } from './components/topology/TopologyBuilder';
+import { ConfigScreen } from './components/config/ConfigScreen';
+import { NetworkTest } from './components/test/NetworkTest';
+import { EducationalSummary } from './components/summary/EducationalSummary';
+import { DialogueManager } from './components/dialogue/DialogueManager';
 
 function App() {
-  const ui = useUIState();
-  const toasts = useToasts();
-  const { closeModal, network, dismissToast } = useGameStore();
+  const phase = useGameStore((state) => state.phase);
+  const dialogueQueue = useGameStore((state) => state.dialogueQueue);
+  const budget = useGameStore((state) => state.budget);
+  const currentSubMission = useGameStore((state) => state.currentSubMission);
 
-  // Track mission progress automatically
-  useMissionProgress();
-
-  // Track if user has started the game (persisted in localStorage)
-  const [hasStarted, setHasStarted] = useState(() => {
-    return localStorage.getItem('netflow-game-started') === 'true';
-  });
-
-  const handleStartGame = () => {
-    localStorage.setItem('netflow-game-started', 'true');
-    setHasStarted(true);
-  };
-
-  // Initialize game state on first load
-  useEffect(() => {
-    // Only initialize if network is empty and game has started
-    if (hasStarted && Object.keys(network.devices).length === 0) {
-      initializeGameState();
-    }
-  }, [hasStarted]);
-
-  // Show landing page if game hasn't started
-  if (!hasStarted) {
-    return <LandingPage onStartGame={handleStartGame} />;
-  }
-
-  const renderView = () => {
-    switch (ui.currentView) {
-      case 'network':
-        return <NetworkView />;
-      case 'shop':
-        return <ShopView />;
-      case 'office':
-        return (
-          <div className="flex items-center justify-center h-full text-gray-500">
-            <div className="text-center">
-              <p className="text-lg">Office View</p>
-              <p className="text-sm">Coming Soon - View your employees and their productivity</p>
-            </div>
-          </div>
-        );
-      case 'missions':
-        return <MissionView />;
+  const renderPhase = () => {
+    switch (phase) {
+      case 'title':
+        return <TitleScreen />;
+      case 'intro':
+        return <IntroScreen />;
+      case 'store':
+        return <EquipmentStore />;
+      case 'topology':
+        return <TopologyBuilder />;
       case 'config':
-        return (
-          <div className="flex items-center justify-center h-full text-gray-500">
-            <div className="text-center">
-              <p className="text-lg">Global Config</p>
-              <p className="text-sm">Coming Soon - Game settings and preferences</p>
-            </div>
-          </div>
-        );
+        return <ConfigScreen />;
+      case 'test':
+        return <NetworkTest />;
+      case 'summary':
+        return <EducationalSummary />;
+      case 'complete':
+        return <MissionCompleteScreen />;
       default:
-        return <NetworkView />;
+        return <TitleScreen />;
     }
   };
 
   return (
-    <>
-      <GameLayout>{renderView()}</GameLayout>
+    <div className="h-screen w-screen flex flex-col overflow-hidden bg-[var(--color-bg-dark)]">
+      {/* Top status bar (hidden on title screen) */}
+      {phase !== 'title' && phase !== 'complete' && (
+        <div className="h-8 bg-[var(--color-panel-header)] border-b-2 border-[var(--color-border)] flex items-center justify-between px-4">
+          <div className="text-[10px] text-[var(--color-text-secondary)]">
+            Mission 1.{currentSubMission.split('.')[1]}: {getMissionTitle(currentSubMission)}
+          </div>
+          <div className="text-[10px]">
+            <span className="text-[var(--color-text-secondary)]">Budget: </span>
+            <span className="price-tag">${budget}</span>
+          </div>
+        </div>
+      )}
 
-      {/* Modals */}
-      <DeviceConfigModal
-        isOpen={ui.activeModal === 'device-config'}
-        onClose={closeModal}
-        modalData={ui.modalData as { deviceId?: string; mode?: 'connect'; fromDevice?: string; toDevice?: string }}
-      />
+      {/* Main content */}
+      <div className="flex-1 overflow-hidden">
+        {renderPhase()}
+      </div>
 
-      {/* Toast Notifications */}
-      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-    </>
+      {/* Floating dialogue (for phases that show dialogue over content) */}
+      {phase === 'store' && dialogueQueue.length > 0 && (
+        <DialogueManager />
+      )}
+    </div>
   );
+}
+
+function getMissionTitle(subMission: string): string {
+  const titles: Record<string, string> = {
+    '1.1': 'Hook \'Em Up',
+    '1.2': 'Lock the Door',
+    '1.3': 'Growing Pains',
+    '1.4': 'The Great Slowdown',
+    '1.5': 'Switching Things Up',
+    '1.6': 'Sharing is Caring',
+    '1.7': 'Print Money',
+    '1.8': 'You\'re Hired!',
+  };
+  return titles[subMission] || 'Unknown';
 }
 
 export default App;

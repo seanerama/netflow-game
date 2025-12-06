@@ -1,191 +1,293 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { type NetworkSlice, createNetworkSlice } from './slices/networkSlice';
-import { type BusinessSlice, createBusinessSlice } from './slices/businessSlice';
-import { type MissionSlice, createMissionSlice } from './slices/missionSlice';
-import { type SimulationSlice, createSimulationSlice } from './slices/simulationSlice';
-import { type UISlice, createUISlice } from './slices/uiSlice';
-import type { GameTime, PlayerState } from '../types';
+import type {
+  GameState,
+  GamePhase,
+  SubMission,
+  InventoryItem,
+  PlacedDevice,
+  Connection,
+  TopologySlot,
+  DialogueLine,
+  RouterConfig,
+  PCConfig,
+  FirewallRule,
+  EquipmentItem,
+} from '../types';
 
-// Game meta state
-interface GameMetaSlice {
-  version: string;
-  saveSlot: number;
-  lastSaved: number;
-  gameTime: GameTime;
-  isPaused: boolean;
-  gameSpeed: 1 | 2 | 4;
-  unlockedFeatures: string[];
-  player: PlayerState;
+interface GameStore extends GameState {
+  // Phase management
+  setPhase: (phase: GamePhase) => void;
+  advanceToNextPhase: () => void;
 
-  // Game control actions
-  pauseGame: () => void;
-  resumeGame: () => void;
-  setGameSpeed: (speed: 1 | 2 | 4) => void;
-  advanceTime: (minutes: number) => void;
-  saveGame: () => void;
+  // Budget management
+  setBudget: (amount: number) => void;
+  spendBudget: (amount: number) => boolean;
+  addBudget: (amount: number) => void;
 
-  // Feature unlock
-  unlockFeature: (feature: string) => void;
-  hasFeature: (feature: string) => boolean;
+  // Inventory management
+  addToInventory: (item: EquipmentItem, quantity?: number) => void;
+  removeFromInventory: (instanceId: string, quantity?: number) => void;
+  clearInventory: () => void;
 
-  // Player actions
-  addXP: (amount: number) => void;
-  setPlayerName: (name: string) => void;
+  // Topology management
+  placeDevice: (device: PlacedDevice) => void;
+  removeDevice: (deviceId: string) => void;
+  addConnection: (connection: Connection) => void;
+  removeConnection: (connectionId: string) => void;
+  updateConnectionStatus: (connectionId: string, status: Connection['status'], error?: string) => void;
+  setSlots: (slots: TopologySlot[]) => void;
+  markSlotOccupied: (slotId: string, occupied: boolean) => void;
 
-  // Reset
+  // Configuration management
+  setRouterConfig: (config: RouterConfig) => void;
+  setPCConfig: (deviceId: string, config: PCConfig) => void;
+  setFirewallRules: (rules: FirewallRule[]) => void;
+
+  // Dialogue management
+  addDialogue: (lines: DialogueLine[]) => void;
+  advanceDialogue: () => DialogueLine | null;
+  clearDialogue: () => void;
+
+  // Flags management
+  setFlag: (key: string, value: boolean) => void;
+  getFlag: (key: string) => boolean;
+
+  // Mission management
+  setSubMission: (subMission: SubMission) => void;
+
+  // Game reset
   resetGame: () => void;
+  resetForSubMission: (subMission: SubMission, budget: number) => void;
 }
 
-const initialPlayerState: PlayerState = {
-  name: 'Network Engineer',
-  xp: 0,
-  level: 1,
-  achievements: [],
-  preferences: {
-    animationSpeed: 'normal',
-    showTutorials: true,
-    soundEnabled: true,
-    musicEnabled: true,
-    colorblindMode: false,
+const PHASE_ORDER: GamePhase[] = ['title', 'intro', 'store', 'topology', 'config', 'test', 'summary', 'complete'];
+
+const initialState: GameState = {
+  currentMission: 1,
+  currentSubMission: '1.1',
+  phase: 'title',
+  budget: 350,
+  inventory: [],
+  topologyState: {
+    devices: [],
+    connections: [],
+    availableSlots: [],
   },
+  configState: {
+    routerConfig: null,
+    pcConfigs: {},
+    firewallRules: [],
+  },
+  dialogueQueue: [],
+  flags: {},
 };
 
-const initialGameMetaState = {
-  version: '1.0.0-mvp',
-  saveSlot: 1,
-  lastSaved: 0,
-  gameTime: {
-    day: 1,
-    hour: 9,
-    minute: 0,
-    totalMinutes: 540, // 9:00 AM on day 1
-  },
-  isPaused: true,
-  gameSpeed: 1 as const,
-  unlockedFeatures: ['basic-router', 'basic-switch', 'ethernet-cable'],
-  player: initialPlayerState,
-};
+export const useGameStore = create<GameStore>((set, get) => ({
+  ...initialState,
 
-// Combined store type
-export type GameStore = GameMetaSlice &
-  NetworkSlice &
-  BusinessSlice &
-  MissionSlice &
-  SimulationSlice &
-  UISlice;
+  // Phase management
+  setPhase: (phase) => set({ phase }),
 
-export const useGameStore = create<GameStore>()(
-  persist(
-    (set, get, api) => ({
-      // Game meta state
-      ...initialGameMetaState,
-
-      pauseGame: () => set({ isPaused: true }),
-
-      resumeGame: () => set({ isPaused: false }),
-
-      setGameSpeed: (speed) => set({ gameSpeed: speed }),
-
-      advanceTime: (minutes) =>
-        set((state) => {
-          const newTotalMinutes = state.gameTime.totalMinutes + minutes;
-          const day = Math.floor(newTotalMinutes / 1440) + 1; // 1440 minutes per day
-          const dayMinutes = newTotalMinutes % 1440;
-          const hour = Math.floor(dayMinutes / 60);
-          const minute = dayMinutes % 60;
-
-          return {
-            gameTime: {
-              day,
-              hour,
-              minute,
-              totalMinutes: newTotalMinutes,
-            },
-          };
-        }),
-
-      saveGame: () => set({ lastSaved: Date.now() }),
-
-      unlockFeature: (feature) =>
-        set((state) => ({
-          unlockedFeatures: state.unlockedFeatures.includes(feature)
-            ? state.unlockedFeatures
-            : [...state.unlockedFeatures, feature],
-        })),
-
-      hasFeature: (feature) => get().unlockedFeatures.includes(feature),
-
-      addXP: (amount) =>
-        set((state) => {
-          const newXP = state.player.xp + amount;
-          // Level up every 100 XP
-          const newLevel = Math.floor(newXP / 100) + 1;
-
-          return {
-            player: {
-              ...state.player,
-              xp: newXP,
-              level: newLevel,
-            },
-          };
-        }),
-
-      setPlayerName: (name) =>
-        set((state) => ({
-          player: {
-            ...state.player,
-            name,
-          },
-        })),
-
-      resetGame: () =>
-        set({
-          ...initialGameMetaState,
-          lastSaved: 0,
-        }),
-
-      // Slices
-      ...createNetworkSlice(set, get, api),
-      ...createBusinessSlice(set, get, api),
-      ...createMissionSlice(set, get, api),
-      ...createSimulationSlice(set, get, api),
-      ...createUISlice(set, get, api),
-    }),
-    {
-      name: 'netflow-game-storage',
-      partialize: (state) => ({
-        // Persist everything except transient UI state
-        version: state.version,
-        saveSlot: state.saveSlot,
-        lastSaved: state.lastSaved,
-        gameTime: state.gameTime,
-        gameSpeed: state.gameSpeed,
-        unlockedFeatures: state.unlockedFeatures,
-        player: state.player,
-        network: state.network,
-        business: state.business,
-        currentPhase: state.currentPhase,
-        currentMission: state.currentMission,
-        completedMissions: state.completedMissions,
-        missions: state.missions,
-        simulation: {
-          ...state.simulation,
-          isRunning: false, // Always start paused on load
-        },
-      }),
+  advanceToNextPhase: () => {
+    const currentIndex = PHASE_ORDER.indexOf(get().phase);
+    if (currentIndex < PHASE_ORDER.length - 1) {
+      set({ phase: PHASE_ORDER[currentIndex + 1] });
     }
-  )
-);
+  },
 
-// Selector hooks for common selections
-export const useDevices = () => useGameStore((state) => state.network.devices);
-export const useConnections = () => useGameStore((state) => state.network.connections);
-export const usePackets = () => useGameStore((state) => state.network.packets);
-export const useBusiness = () => useGameStore((state) => state.business);
-export const useEmployees = () => useGameStore((state) => state.business.employees);
-export const useCurrentMission = () => useGameStore((state) => state.currentMission);
-export const useUIState = () => useGameStore((state) => state.ui);
-export const useGameTime = () => useGameStore((state) => state.gameTime);
-export const useSimulation = () => useGameStore((state) => state.simulation);
-export const useToasts = () => useGameStore((state) => state.toasts);
+  // Budget management
+  setBudget: (amount) => set({ budget: amount }),
+
+  spendBudget: (amount) => {
+    const { budget } = get();
+    if (budget >= amount) {
+      set({ budget: budget - amount });
+      return true;
+    }
+    return false;
+  },
+
+  addBudget: (amount) => set((state) => ({ budget: state.budget + amount })),
+
+  // Inventory management
+  addToInventory: (item, quantity = 1) => {
+    set((state) => {
+      const existingItem = state.inventory.find((i) => i.id === item.id);
+      if (existingItem) {
+        return {
+          inventory: state.inventory.map((i) =>
+            i.id === item.id ? { ...i, quantity: i.quantity + quantity } : i
+          ),
+        };
+      }
+      const newItem: InventoryItem = {
+        ...item,
+        instanceId: `${item.id}-${Date.now()}`,
+        quantity,
+      };
+      return { inventory: [...state.inventory, newItem] };
+    });
+  },
+
+  removeFromInventory: (instanceId, quantity = 1) => {
+    set((state) => {
+      const item = state.inventory.find((i) => i.instanceId === instanceId);
+      if (!item) return state;
+
+      if (item.quantity <= quantity) {
+        return { inventory: state.inventory.filter((i) => i.instanceId !== instanceId) };
+      }
+      return {
+        inventory: state.inventory.map((i) =>
+          i.instanceId === instanceId ? { ...i, quantity: i.quantity - quantity } : i
+        ),
+      };
+    });
+  },
+
+  clearInventory: () => set({ inventory: [] }),
+
+  // Topology management
+  placeDevice: (device) => {
+    set((state) => ({
+      topologyState: {
+        ...state.topologyState,
+        devices: [...state.topologyState.devices, device],
+      },
+    }));
+  },
+
+  removeDevice: (deviceId) => {
+    set((state) => ({
+      topologyState: {
+        ...state.topologyState,
+        devices: state.topologyState.devices.filter((d) => d.id !== deviceId),
+        connections: state.topologyState.connections.filter(
+          (c) => c.fromDeviceId !== deviceId && c.toDeviceId !== deviceId
+        ),
+      },
+    }));
+  },
+
+  addConnection: (connection) => {
+    set((state) => ({
+      topologyState: {
+        ...state.topologyState,
+        connections: [...state.topologyState.connections, connection],
+      },
+    }));
+  },
+
+  removeConnection: (connectionId) => {
+    set((state) => ({
+      topologyState: {
+        ...state.topologyState,
+        connections: state.topologyState.connections.filter((c) => c.id !== connectionId),
+      },
+    }));
+  },
+
+  updateConnectionStatus: (connectionId, status, error) => {
+    set((state) => ({
+      topologyState: {
+        ...state.topologyState,
+        connections: state.topologyState.connections.map((c) =>
+          c.id === connectionId ? { ...c, status, errorMessage: error } : c
+        ),
+      },
+    }));
+  },
+
+  setSlots: (slots) => {
+    set((state) => ({
+      topologyState: {
+        ...state.topologyState,
+        availableSlots: slots,
+      },
+    }));
+  },
+
+  markSlotOccupied: (slotId, occupied) => {
+    set((state) => ({
+      topologyState: {
+        ...state.topologyState,
+        availableSlots: state.topologyState.availableSlots.map((s) =>
+          s.id === slotId ? { ...s, occupied } : s
+        ),
+      },
+    }));
+  },
+
+  // Configuration management
+  setRouterConfig: (config) => {
+    set((state) => ({
+      configState: {
+        ...state.configState,
+        routerConfig: config,
+      },
+    }));
+  },
+
+  setPCConfig: (deviceId, config) => {
+    set((state) => ({
+      configState: {
+        ...state.configState,
+        pcConfigs: {
+          ...state.configState.pcConfigs,
+          [deviceId]: config,
+        },
+      },
+    }));
+  },
+
+  setFirewallRules: (rules) => {
+    set((state) => ({
+      configState: {
+        ...state.configState,
+        firewallRules: rules,
+      },
+    }));
+  },
+
+  // Dialogue management
+  addDialogue: (lines) => {
+    set((state) => ({
+      dialogueQueue: [...state.dialogueQueue, ...lines],
+    }));
+  },
+
+  advanceDialogue: () => {
+    const { dialogueQueue } = get();
+    if (dialogueQueue.length === 0) return null;
+
+    const [current, ...rest] = dialogueQueue;
+    set({ dialogueQueue: rest });
+    return current;
+  },
+
+  clearDialogue: () => set({ dialogueQueue: [] }),
+
+  // Flags management
+  setFlag: (key, value) => {
+    set((state) => ({
+      flags: { ...state.flags, [key]: value },
+    }));
+  },
+
+  getFlag: (key) => get().flags[key] ?? false,
+
+  // Mission management
+  setSubMission: (subMission) => set({ currentSubMission: subMission }),
+
+  // Game reset
+  resetGame: () => set(initialState),
+
+  resetForSubMission: (subMission, budget) => {
+    set({
+      ...initialState,
+      currentSubMission: subMission,
+      budget,
+      phase: 'intro',
+    });
+  },
+}));
