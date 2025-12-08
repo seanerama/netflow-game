@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { DeviceType } from '../../types';
 
 interface DevicePlaceholderProps {
@@ -24,6 +25,15 @@ const sizeClasses = {
   lg: 'w-24 h-24',
 };
 
+// Map device types to sprite filenames
+const deviceSprites: Record<DeviceType, string> = {
+  router: 'router',
+  hub: 'hub',
+  switch: 'switch',
+  pc: 'pc',
+  't1-demarc': 't1-demarc',
+};
+
 export function DevicePlaceholder({
   type,
   name,
@@ -33,8 +43,32 @@ export function DevicePlaceholder({
   className = '',
   onClick,
 }: DevicePlaceholderProps) {
+  const [imageError, setImageError] = useState(false);
   const deviceClass = `device-${type === 't1-demarc' ? 'demarc' : type}`;
+  const spriteFile = deviceSprites[type];
 
+  // Try to use sprite image
+  if (spriteFile && !imageError) {
+    return (
+      <div
+        className={`${sizeClasses[size]} ${className} ${
+          onClick ? 'cursor-pointer hover:opacity-80' : ''
+        } flex items-center justify-center`}
+        onClick={onClick}
+        title={name}
+      >
+        <img
+          src={`/sprites/equipment/${spriteFile}.png`}
+          alt={name}
+          className="max-w-full max-h-full object-contain"
+          style={{ imageRendering: 'pixelated' }}
+          onError={() => setImageError(true)}
+        />
+      </div>
+    );
+  }
+
+  // Fallback to colored placeholder
   return (
     <div
       className={`device-placeholder ${deviceClass} ${sizeClasses[size]} ${className} ${
@@ -52,19 +86,3 @@ export function DevicePlaceholder({
     </div>
   );
 }
-
-// For instructions on adding pixel art sprites later:
-// 1. Create a sprites folder: src/assets/sprites/
-// 2. Add PNG images for each device type (router.png, hub.png, etc.)
-// 3. Replace the colored square background with the sprite:
-//    - Use CSS background-image or an <img> tag
-//    - Ensure image-rendering: pixelated for crisp edges
-// 4. Example modification:
-//    <div
-//      className={`device-placeholder ${sizeClasses[size]}`}
-//      style={{
-//        backgroundImage: `url(/sprites/${type}.png)`,
-//        backgroundSize: 'contain',
-//        backgroundRepeat: 'no-repeat'
-//      }}
-//    />
