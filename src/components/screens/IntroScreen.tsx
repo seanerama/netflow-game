@@ -53,79 +53,32 @@ export function IntroScreen() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Office scene background */}
-      <div className="flex-1 relative bg-[var(--color-bg-medium)]">
-        {/* Simple office scene representation */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative w-[600px] h-[400px] bg-[#d4c4a8] border-8 border-[#8b7355]">
-            {/* Floor */}
-            <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#a0522d] border-t-4 border-[#8b4513]" />
-
-            {/* Wall decorations - T1 Demarc */}
-            <div className="absolute top-8 right-8">
-              <img
-                src="/sprites/equipment/t1-demarc.png"
-                alt="T1 Demarc"
-                className="w-12 h-12"
-                style={{ imageRendering: 'pixelated' }}
-              />
-            </div>
-
-            {/* Bubba at desk */}
-            <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
-              <img
-                src="/sprites/environment/bubba-desk.png"
-                alt="Bubba at desk"
-                className="w-24 h-24"
-                style={{ imageRendering: 'pixelated' }}
-              />
-            </div>
-
-            {/* Darlene at reception - left side */}
-            <div className="absolute bottom-20 left-8">
-              <img
-                src="/sprites/environment/darlene-desk.png"
-                alt="Darlene at reception"
-                className="w-20 h-20"
-                style={{ imageRendering: 'pixelated' }}
-              />
-            </div>
-
-            {/* Earl with toolbox - right side */}
-            <div className="absolute bottom-24 right-8">
-              <img
-                src="/sprites/environment/earl-toolbox.png"
-                alt="Earl"
-                className="w-16 h-16"
-                style={{ imageRendering: 'pixelated' }}
-              />
-            </div>
-
-            {/* Other PCs around the room */}
-            <div className="absolute bottom-24 left-36">
-              <img
-                src="/sprites/equipment/pc.png"
-                alt="PC"
-                className="w-10 h-10"
-                style={{ imageRendering: 'pixelated' }}
-              />
-            </div>
-            <div className="absolute bottom-24 right-36">
-              <img
-                src="/sprites/equipment/pc.png"
-                alt="PC"
-                className="w-10 h-10"
-                style={{ imageRendering: 'pixelated' }}
-              />
-            </div>
+      {/* Building exterior background */}
+      <div className="flex-1 relative bg-gradient-to-b from-[#87CEEB] to-[#B0E0E6]">
+        {/* Sky and ground scene */}
+        <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
+          {/* Ground/parking lot */}
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-[#4a4a4a]">
+            {/* Parking lines */}
+            <div className="absolute top-4 left-1/4 w-16 h-1 bg-[#f0f0f0]" />
+            <div className="absolute top-4 left-1/2 w-16 h-1 bg-[#f0f0f0] -translate-x-1/2" />
+            <div className="absolute top-4 right-1/4 w-16 h-1 bg-[#f0f0f0]" />
           </div>
+
+          {/* Building sprite */}
+          <img
+            src="/sprites/environment/bubba-office.png"
+            alt="Bubba's Premium Property Management"
+            className="relative z-10 w-96 h-auto mb-16"
+            style={{ imageRendering: 'pixelated' }}
+          />
         </div>
 
         {/* Scene label */}
-        <div className="absolute top-4 left-4 text-[10px] text-[var(--color-text-secondary)]">
+        <div className="absolute top-4 left-4 text-[10px] text-[var(--color-text-primary)] bg-black/30 px-2 py-1 rounded">
           Bubba's Premium Property Management
         </div>
-        <div className="absolute top-4 right-4 text-[10px] text-[var(--color-text-secondary)]">
+        <div className="absolute top-4 right-4 text-[10px] text-[var(--color-text-primary)] bg-black/30 px-2 py-1 rounded">
           Possum Holler, 2001
         </div>
       </div>

@@ -55,35 +55,35 @@ export function HiredScreen({ onComplete }: Props) {
     }
     return (
       <div className="h-full flex flex-col">
-        {/* Office scene with Bubba in a tie */}
-        <div className="flex-1 relative bg-[var(--color-bg-medium)]">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative w-[600px] h-[400px] bg-[#d4c4a8] border-8 border-[#8b7355]">
-              {/* Floor */}
-              <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#a0522d] border-t-4 border-[#8b4513]" />
-
-              {/* Bubba at desk */}
-              <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
-                <img
-                  src="/sprites/environment/bubba-desk.png"
-                  alt="Bubba at desk"
-                  className="w-28 h-28"
-                  style={{ imageRendering: 'pixelated' }}
-                />
-              </div>
-
-              {/* "Hired" banner behind */}
-              <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-[var(--color-accent-yellow)] px-6 py-2 border-4 border-[#8b6914]">
-                <span className="text-lg font-bold text-black">CONGRATULATIONS!</span>
-              </div>
+        {/* Building exterior with celebration banner */}
+        <div className="flex-1 relative bg-gradient-to-b from-[#87CEEB] to-[#B0E0E6]">
+          <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
+            {/* Ground/parking lot */}
+            <div className="absolute bottom-0 left-0 right-0 h-24 bg-[#4a4a4a]">
+              <div className="absolute top-4 left-1/4 w-16 h-1 bg-[#f0f0f0]" />
+              <div className="absolute top-4 left-1/2 w-16 h-1 bg-[#f0f0f0] -translate-x-1/2" />
+              <div className="absolute top-4 right-1/4 w-16 h-1 bg-[#f0f0f0]" />
             </div>
+
+            {/* Celebration banner */}
+            <div className="absolute top-16 left-1/2 -translate-x-1/2 bg-[var(--color-accent-yellow)] px-8 py-3 border-4 border-[#8b6914] z-20">
+              <span className="text-xl font-bold text-black">CONGRATULATIONS!</span>
+            </div>
+
+            {/* Building sprite */}
+            <img
+              src="/sprites/environment/bubba-office.png"
+              alt="Bubba's Premium Property Management"
+              className="relative z-10 w-96 h-auto mb-16"
+              style={{ imageRendering: 'pixelated' }}
+            />
           </div>
 
           {/* Scene label */}
-          <div className="absolute top-4 left-4 text-[10px] text-[var(--color-text-secondary)]">
+          <div className="absolute top-4 left-4 text-[10px] text-[var(--color-text-primary)] bg-black/30 px-2 py-1 rounded">
             Bubba's Premium Property Management
           </div>
-          <div className="absolute top-4 right-4 text-[10px] text-[var(--color-text-secondary)]">
+          <div className="absolute top-4 right-4 text-[10px] text-[var(--color-text-primary)] bg-black/30 px-2 py-1 rounded">
             A Few Weeks Later...
           </div>
         </div>
@@ -134,45 +134,28 @@ export function HiredScreen({ onComplete }: Props) {
   if (phase === 'response') {
     return (
       <div className="h-full flex flex-col">
-        <div className="flex-1 relative bg-[var(--color-bg-medium)]">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative w-[600px] h-[400px] bg-[#d4c4a8] border-8 border-[#8b7355]">
-              {/* Floor */}
-              <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#a0522d] border-t-4 border-[#8b4513]" />
-
-              {/* Characters celebrating */}
-              <div className="absolute bottom-20 left-1/4 -translate-x-1/2">
-                <img
-                  src="/sprites/characters/bubba.png"
-                  alt="Bubba"
-                  className="w-16 h-16"
-                  style={{ imageRendering: 'pixelated' }}
-                />
-              </div>
-              <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
-                <img
-                  src="/sprites/characters/darlene.png"
-                  alt="Darlene"
-                  className="w-16 h-16"
-                  style={{ imageRendering: 'pixelated' }}
-                />
-              </div>
-              <div className="absolute bottom-20 left-3/4 -translate-x-1/2">
-                <img
-                  src="/sprites/characters/earl.png"
-                  alt="Earl"
-                  className="w-16 h-16"
-                  style={{ imageRendering: 'pixelated' }}
-                />
-              </div>
-
-              {/* Celebration text */}
-              <div className="absolute top-8 left-1/2 -translate-x-1/2 text-center">
-                <div className="text-2xl text-[var(--color-accent-yellow)] animate-pulse">
-                  WELCOME TO THE TEAM!
-                </div>
-              </div>
+        {/* Building exterior with welcome banner */}
+        <div className="flex-1 relative bg-gradient-to-b from-[#87CEEB] to-[#B0E0E6]">
+          <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
+            {/* Ground/parking lot */}
+            <div className="absolute bottom-0 left-0 right-0 h-24 bg-[#4a4a4a]">
+              <div className="absolute top-4 left-1/4 w-16 h-1 bg-[#f0f0f0]" />
+              <div className="absolute top-4 left-1/2 w-16 h-1 bg-[#f0f0f0] -translate-x-1/2" />
+              <div className="absolute top-4 right-1/4 w-16 h-1 bg-[#f0f0f0]" />
             </div>
+
+            {/* Welcome banner */}
+            <div className="absolute top-16 left-1/2 -translate-x-1/2 bg-[var(--color-accent-green)] px-8 py-3 border-4 border-[#1a5f1a] z-20">
+              <span className="text-xl font-bold text-white animate-pulse">WELCOME TO THE TEAM!</span>
+            </div>
+
+            {/* Building sprite */}
+            <img
+              src="/sprites/environment/bubba-office.png"
+              alt="Bubba's Premium Property Management"
+              className="relative z-10 w-96 h-auto mb-16"
+              style={{ imageRendering: 'pixelated' }}
+            />
           </div>
         </div>
 
@@ -183,41 +166,42 @@ export function HiredScreen({ onComplete }: Props) {
     );
   }
 
-  // Harlan setup phase
+  // Harlan setup phase - show car dealership
   if (phase === 'harlan') {
     return (
       <div className="h-full flex flex-col">
-        <div className="flex-1 relative bg-[var(--color-bg-medium)]">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative w-[600px] h-[400px] bg-[#d4c4a8] border-8 border-[#8b7355]">
-              {/* Floor */}
-              <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#a0522d] border-t-4 border-[#8b4513]" />
-
-              {/* Bubba */}
-              <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
-                <img
-                  src="/sprites/characters/bubba.png"
-                  alt="Bubba"
-                  className="w-20 h-20"
-                  style={{ imageRendering: 'pixelated' }}
-                />
-              </div>
-
-              {/* Thought bubble with car dealership */}
-              <div className="absolute top-12 right-12 w-48 h-32 bg-white border-4 border-gray-400 rounded-lg p-2">
-                <div className="text-center text-xs text-gray-700 mb-2">
-                  HARLAN'S HOUSE OF HONDAS
-                </div>
-                <div className="flex justify-center gap-2">
-                  <div className="w-8 h-6 bg-red-500 border border-gray-600">🚗</div>
-                  <div className="w-8 h-6 bg-blue-500 border border-gray-600">🚗</div>
-                  <div className="w-8 h-6 bg-green-500 border border-gray-600">🚗</div>
-                </div>
-                <div className="text-center text-[8px] text-gray-500 mt-2">
-                  30 employees, 1995 systems
-                </div>
-              </div>
+        {/* Car dealership exterior */}
+        <div className="flex-1 relative bg-gradient-to-b from-[#87CEEB] to-[#B0E0E6]">
+          <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
+            {/* Ground/parking lot */}
+            <div className="absolute bottom-0 left-0 right-0 h-24 bg-[#4a4a4a]">
+              <div className="absolute top-4 left-1/4 w-16 h-1 bg-[#f0f0f0]" />
+              <div className="absolute top-4 left-1/2 w-16 h-1 bg-[#f0f0f0] -translate-x-1/2" />
+              <div className="absolute top-4 right-1/4 w-16 h-1 bg-[#f0f0f0]" />
             </div>
+
+            {/* Car dealership sprite */}
+            <img
+              src="/sprites/environment/harlan-dealership.png"
+              alt="Harlan's House of Hondas"
+              className="relative z-10 w-96 h-auto mb-16"
+              style={{ imageRendering: 'pixelated' }}
+            />
+
+            {/* Info badge */}
+            <div className="absolute top-16 right-8 bg-white/90 px-4 py-2 border-4 border-gray-400 rounded z-20">
+              <div className="text-xs text-gray-700 font-bold">Your Next Challenge:</div>
+              <div className="text-[10px] text-gray-600">30 employees</div>
+              <div className="text-[10px] text-gray-600">Outdated 1995 systems</div>
+            </div>
+          </div>
+
+          {/* Scene label */}
+          <div className="absolute top-4 left-4 text-[10px] text-[var(--color-text-primary)] bg-black/30 px-2 py-1 rounded">
+            Harlan's House of Hondas
+          </div>
+          <div className="absolute top-4 right-4 text-[10px] text-[var(--color-text-primary)] bg-black/30 px-2 py-1 rounded">
+            Coming Soon...
           </div>
         </div>
 
