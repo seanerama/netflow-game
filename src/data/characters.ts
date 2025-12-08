@@ -50,6 +50,13 @@ export const characters: Record<string, Character> = {
     portraitColor: 'transparent',
     dialogueStyle: 'professional',
   },
+  player: {
+    id: 'player',
+    name: 'You',
+    role: 'Network Administrator',
+    portraitColor: '#4169E1', // Royal blue
+    dialogueStyle: 'professional',
+  },
   system: {
     id: 'system',
     name: 'System',
