@@ -61,29 +61,63 @@ export function IntroScreen() {
             {/* Floor */}
             <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#a0522d] border-t-4 border-[#8b4513]" />
 
-            {/* Wall decorations */}
-            <div className="absolute top-8 right-8 w-24 h-16 bg-[#333] border-4 border-[#666] flex items-center justify-center">
-              <div className="w-4 h-4 bg-[var(--color-accent-green)] blink-active rounded-full" />
-              <span className="text-[8px] text-white ml-2">T1</span>
+            {/* Wall decorations - T1 Demarc */}
+            <div className="absolute top-8 right-8">
+              <img
+                src="/sprites/equipment/t1-demarc.png"
+                alt="T1 Demarc"
+                className="w-12 h-12"
+                style={{ imageRendering: 'pixelated' }}
+              />
             </div>
 
-            {/* Desk (Bubba's) */}
-            <div className="absolute bottom-24 left-1/2 -translate-x-1/2 w-48 h-12 bg-[#8b7355] border-4 border-[#6b5340]">
-              <div className="absolute -top-4 right-4 w-8 h-8 bg-[var(--color-pc)] border-2 border-[#758586]" />
+            {/* Bubba at desk */}
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
+              <img
+                src="/sprites/environment/bubba-desk.png"
+                alt="Bubba at desk"
+                className="w-24 h-24"
+                style={{ imageRendering: 'pixelated' }}
+              />
             </div>
 
-            {/* Character placeholder - Bubba */}
-            <div
-              className="absolute bottom-36 left-1/2 -translate-x-1/2 w-20 h-20 bg-[#8B4513] border-4 border-[var(--color-border)] flex items-center justify-center text-3xl text-white"
-            >
-              B
+            {/* Darlene at reception - left side */}
+            <div className="absolute bottom-20 left-8">
+              <img
+                src="/sprites/environment/darlene-desk.png"
+                alt="Darlene at reception"
+                className="w-20 h-20"
+                style={{ imageRendering: 'pixelated' }}
+              />
+            </div>
+
+            {/* Earl with toolbox - right side */}
+            <div className="absolute bottom-24 right-8">
+              <img
+                src="/sprites/environment/earl-toolbox.png"
+                alt="Earl"
+                className="w-16 h-16"
+                style={{ imageRendering: 'pixelated' }}
+              />
             </div>
 
             {/* Other PCs around the room */}
-            <div className="absolute bottom-24 left-8 w-8 h-8 bg-[var(--color-pc)] border-2 border-[#758586]" />
-            <div className="absolute bottom-24 left-20 w-8 h-8 bg-[var(--color-pc)] border-2 border-[#758586]" />
-            <div className="absolute bottom-24 right-8 w-8 h-8 bg-[var(--color-pc)] border-2 border-[#758586]" />
-            <div className="absolute bottom-24 right-20 w-8 h-8 bg-[var(--color-pc)] border-2 border-[#758586]" />
+            <div className="absolute bottom-24 left-36">
+              <img
+                src="/sprites/equipment/pc.png"
+                alt="PC"
+                className="w-10 h-10"
+                style={{ imageRendering: 'pixelated' }}
+              />
+            </div>
+            <div className="absolute bottom-24 right-36">
+              <img
+                src="/sprites/equipment/pc.png"
+                alt="PC"
+                className="w-10 h-10"
+                style={{ imageRendering: 'pixelated' }}
+              />
+            </div>
           </div>
         </div>
 

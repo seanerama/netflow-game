@@ -62,18 +62,14 @@ export function HiredScreen({ onComplete }: Props) {
               {/* Floor */}
               <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#a0522d] border-t-4 border-[#8b4513]" />
 
-              {/* Bubba's desk */}
-              <div className="absolute bottom-24 left-1/2 -translate-x-1/2 w-48 h-12 bg-[#8b7355] border-4 border-[#6b5340]">
-                {/* Papers on desk */}
-                <div className="absolute -top-2 left-4 w-8 h-6 bg-white border border-gray-300" />
-                <div className="absolute -top-1 left-8 w-8 h-6 bg-white border border-gray-300" />
-              </div>
-
-              {/* Bubba with tie */}
-              <div className="absolute bottom-36 left-1/2 -translate-x-1/2 w-24 h-24 bg-[#8B4513] border-4 border-[var(--color-border)] flex flex-col items-center justify-center">
-                <span className="text-3xl text-white">B</span>
-                {/* Tie */}
-                <div className="absolute bottom-2 w-3 h-8 bg-red-600 transform rotate-3" />
+              {/* Bubba at desk */}
+              <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
+                <img
+                  src="/sprites/environment/bubba-desk.png"
+                  alt="Bubba at desk"
+                  className="w-28 h-28"
+                  style={{ imageRendering: 'pixelated' }}
+                />
               </div>
 
               {/* "Hired" banner behind */}
@@ -145,14 +141,29 @@ export function HiredScreen({ onComplete }: Props) {
               <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#a0522d] border-t-4 border-[#8b4513]" />
 
               {/* Characters celebrating */}
-              <div className="absolute bottom-28 left-1/4 -translate-x-1/2 w-16 h-16 bg-[#8B4513] border-4 border-[var(--color-border)] flex items-center justify-center text-xl text-white">
-                B
+              <div className="absolute bottom-20 left-1/4 -translate-x-1/2">
+                <img
+                  src="/sprites/characters/bubba.png"
+                  alt="Bubba"
+                  className="w-16 h-16"
+                  style={{ imageRendering: 'pixelated' }}
+                />
               </div>
-              <div className="absolute bottom-28 left-1/2 -translate-x-1/2 w-16 h-16 bg-[#DAA520] border-4 border-[var(--color-border)] flex items-center justify-center text-xl text-white">
-                D
+              <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
+                <img
+                  src="/sprites/characters/darlene.png"
+                  alt="Darlene"
+                  className="w-16 h-16"
+                  style={{ imageRendering: 'pixelated' }}
+                />
               </div>
-              <div className="absolute bottom-28 left-3/4 -translate-x-1/2 w-16 h-16 bg-[#228B22] border-4 border-[var(--color-border)] flex items-center justify-center text-xl text-white">
-                E
+              <div className="absolute bottom-20 left-3/4 -translate-x-1/2">
+                <img
+                  src="/sprites/characters/earl.png"
+                  alt="Earl"
+                  className="w-16 h-16"
+                  style={{ imageRendering: 'pixelated' }}
+                />
               </div>
 
               {/* Celebration text */}
@@ -183,8 +194,13 @@ export function HiredScreen({ onComplete }: Props) {
               <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#a0522d] border-t-4 border-[#8b4513]" />
 
               {/* Bubba */}
-              <div className="absolute bottom-28 left-1/2 -translate-x-1/2 w-20 h-20 bg-[#8B4513] border-4 border-[var(--color-border)] flex items-center justify-center text-2xl text-white">
-                B
+              <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
+                <img
+                  src="/sprites/characters/bubba.png"
+                  alt="Bubba"
+                  className="w-20 h-20"
+                  style={{ imageRendering: 'pixelated' }}
+                />
               </div>
 
               {/* Thought bubble with car dealership */}
